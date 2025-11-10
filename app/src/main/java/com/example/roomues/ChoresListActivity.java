@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,6 +26,7 @@ public class ChoresListActivity extends AppCompatActivity {
 
     private int currentWeek = 0;  // Week offset from today (0 = current week)
     private TextView weekDisplayText;
+    private static final int SWAP_CHORE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,11 @@ public class ChoresListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        swapChoreBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(ChoresListActivity.this, SwapChoreActivity.class);
+            startActivityForResult(intent, SWAP_CHORE_REQUEST);
+        });
+
     }
 //    private void updateDisplayedWeek() {
 //        weekDisplayText.setText("Week " + currentWeek);
@@ -126,5 +133,21 @@ public class ChoresListActivity extends AppCompatActivity {
                 startActivity(new android.content.Intent(this, ScheduleViewActivity.class))
         );
         choresListBtn.setOnClickListener(v -> {}); // Already here
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SWAP_CHORE_REQUEST && resultCode == RESULT_OK && data != null) {
+            boolean swapSuccess = data.getBooleanExtra("swapSuccess", false);
+            if (swapSuccess) {
+                String chore1Name = data.getStringExtra("chore1Name");
+                String chore2Name = data.getStringExtra("chore2Name");
+                Toast.makeText(this,
+                    "Successfully swapped: " + chore1Name + " ↔ " + chore2Name,
+                    Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
