@@ -3,6 +3,7 @@ package com.example.roomues;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 import java.util.List;
 import androidx.lifecycle.LiveData;
 
@@ -10,6 +11,9 @@ import androidx.lifecycle.LiveData;
 public interface ChoreDao {
     @Insert
     void insert(ChoreEntity chore);
+
+    @Update
+    void update(ChoreEntity chore);
 
     @Query("SELECT * FROM chores")
     List<ChoreEntity> getAllChores();
