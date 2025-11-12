@@ -14,16 +14,15 @@ public class ReminderSetupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder_screen);
 
-        Button continueButton = findViewById(R.id.continueButton);
-        Button cancelButton = findViewById(R.id.cancelButton);
-        RadioGroup yesNoGroup = findViewById(R.id.yesNoGroup);
+        Button continueBtn = findViewById(R.id.continueButton);
+        Button cancelBtn = findViewById(R.id.cancelButton);
 
-        continueButton.setOnClickListener(v -> {
+        continueBtn.setOnClickListener(v -> {
             // For now, just go to Chores List page (we’ll build next)
-            Intent intent = new Intent(ReminderSetupActivity.this, ChoresListActivity.class);
+            Intent intent = new Intent(this, ChoresListActivity.class);
             startActivity(intent);
         });
 
-        cancelButton.setOnClickListener(v -> finish());
+        cancelBtn.setOnClickListener(v -> finish());
     }
 }

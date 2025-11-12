@@ -14,28 +14,18 @@ import androidx.room.PrimaryKey;
         )
 )
 public class ChoreEntity {
+
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    public int id; // Unique ID
 
-    private String name;
-    private String frequency;
-    private int roommateId; // links to RoommateEntity
+    public String name; // e.g., "Take out trash"
+    public String frequency; // e.g., "Weekly"
+    public int roommateId; // which roommate is assigned
 
+    // --- constructor ---
     public ChoreEntity(String name, String frequency, int roommateId) {
         this.name = name;
         this.frequency = frequency;
         this.roommateId = roommateId;
     }
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getFrequency() { return frequency; }
-    public void setFrequency(String frequency) { this.frequency = frequency; }
-
-    public int getRoommateId() { return roommateId; }
-    public void setRoommateId(int roommateId) { this.roommateId = roommateId; }
 }

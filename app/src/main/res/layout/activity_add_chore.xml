@@ -54,7 +54,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Assign to Roommate"
+            android:text="Week 1 Assignment to Roommate"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -65,6 +65,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:text="Due Date(s) in a Week"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="M" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="T" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="W" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="R" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="F" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
 
 
         <LinearLayout
@@ -91,6 +115,15 @@
                 android:text="Cancel"
                 android:backgroundTint="@android:color/darker_gray"
                 android:textColor="@android:color/white"/>
+
+            <ListView
+                android:id="@+id/choreList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp"
+                android:layout_marginTop="24dp" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

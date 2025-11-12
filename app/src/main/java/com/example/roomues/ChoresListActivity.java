@@ -2,11 +2,13 @@ package com.example.roomues;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.annotation.SuppressLint;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,110 +23,115 @@ public class ChoresListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ChoreAdapter adapter;
-    private RoomiesViewModel viewModel;
+    private TextView weekLabel;
 
     private int currentWeek = 0;  // Week offset from today (0 = current week)
-    private TextView weekDisplayText;
+
+    private List<RoommateEntity> roommates = new ArrayList<>();
+    private List<ChoreEntity> chores = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chores_list);
 
+        // --- find views ---
         recyclerView = findViewById(R.id.choresRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new ChoreAdapter(new ArrayList<>());
-        recyclerView.setAdapter(adapter);
-        weekDisplayText = findViewById(R.id.weekDisplayText);
+        weekLabel = findViewById(R.id.weekDisplayText);
         Button prevWeekBtn = findViewById(R.id.prevWeekBtn);
         Button nextWeekBtn = findViewById(R.id.nextWeekBtn);
-
-        updateDisplayedWeek();
-
-        prevWeekBtn.setOnClickListener(v -> {
-            currentWeek--;
-            updateDisplayedWeek();
-            refreshChoreList();
-        });
-
-        nextWeekBtn.setOnClickListener(v -> {
-            currentWeek++;
-            updateDisplayedWeek();
-            refreshChoreList();
-        });
-
-        viewModel = new ViewModelProvider(this).get(RoomiesViewModel.class);
-
-        viewModel.getAllChores().observe(this, chores -> {
-            RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
-            List<RoommateEntity> roommates = db.roommateDao().getAllRoommates();
-            List<ChoreItem> displayList = new ArrayList<>();
-
-            for (ChoreEntity c : chores) {
-                String roommateName = "Unassigned";
-                for (RoommateEntity r : roommates) {
-                    if (r.getId() == c.getRoommateId()) {
-                        roommateName = r.getName();
-                        break;
-                    }
-                }
-                displayList.add(new ChoreItem(roommateName, c.getName()));
-            }
-            adapter.updateList(displayList);
-        });
-        setupFooter();
-
         Button addRoommateBtn = findViewById(R.id.addRoommateBtn);
         Button addChoreBtn = findViewById(R.id.addChoreBtn);
-        Button swapChoreBtn = findViewById(R.id.swapChoreBtn);
+        Button swapBtn = findViewById(R.id.swapChoreBtn);
 
-        addChoreBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(ChoresListActivity.this, AddChoreActivity.class);
-            startActivity(intent);
+        // --- setup list ---
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ChoreAdapter(new ArrayList<>());
+        recyclerView.setAdapter(adapter);
+
+        // --- setup buttons ---
+        prevWeekBtn.setOnClickListener(v -> {
+            currentWeek--;
+            refreshList();
+        });
+        nextWeekBtn.setOnClickListener(v -> {
+            currentWeek++;
+            refreshList();
         });
 
-        addRoommateBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(ChoresListActivity.this, AddRoommateActivity.class);
-            startActivity(intent);
-        });
+        addRoommateBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, AddRoommateActivity.class))
+        );
 
+        addChoreBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, AddChoreActivity.class))
+        );
+
+        swapBtn.setOnClickListener(v ->
+                Toast.makeText(this, "Swap feature coming soon!", Toast.LENGTH_SHORT).show()
+        );
+
+        // --- footer navigation ---
+        Button choresListBtn = findViewById(R.id.choresListBtn);
+        Button scheduleBtn = findViewById(R.id.scheduleBtn);
+        choresListBtn.setOnClickListener(v -> {
+        }); // Already here
+        scheduleBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, ScheduleViewActivity.class))
+        );
     }
-//    private void updateDisplayedWeek() {
-//        weekDisplayText.setText("Week " + currentWeek);
-//    }
-    private void updateDisplayedWeek() {
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshList();
+    }
+
+    // --- helper: refresh list and label ---
+    private void refreshList() {
+        updateWeekLabel();
+
+        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
+        roommates = db.roommateDao().getAll();
+        chores = db.choreDao().getAll();
+
+        List<ChoreItem> groupedList = new ArrayList<>();
+
+        if (roommates.isEmpty()) {
+            adapter.updateList(groupedList);
+            return;
+        }
+
+        // For each roommate, find their chores
+        for (int i = 0; i < roommates.size(); i++) {
+            RoommateEntity r = roommates.get(i);
+            List<String> theirChores = new ArrayList<>();
+
+            for (int j = 0; j < chores.size(); j++) {
+                ChoreEntity c = chores.get(j);
+
+                // rotation logic
+                int assignIndex = (j + currentWeek) % roommates.size();
+                if (roommates.get(assignIndex).id == r.id) {
+                    theirChores.add(c.name);
+                }
+            }
+
+            String choreText = theirChores.isEmpty()
+                    ? "No chores this week"
+                    : TextUtils.join(", ", theirChores);
+
+            groupedList.add(new ChoreItem(r.name, choreText));
+        }
+
+        adapter.updateList(groupedList);
+    }
+
+    @SuppressLint("NewApi")
+    private void updateWeekLabel() {
         LocalDate start = LocalDate.now().plusWeeks(currentWeek).with(DayOfWeek.MONDAY);
         LocalDate end = start.plusDays(6);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");
-        weekDisplayText.setText(fmt.format(start) + " - " + fmt.format(end));
-    }
-    private void refreshChoreList() {
-        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
-        List<RoommateEntity> roommates = db.roommateDao().getAllRoommates();
-        List<ChoreEntity> chores = db.choreDao().getAllChores();
-
-        List<ChoreItem> displayList = new ArrayList<>();
-
-        if (roommates.isEmpty()) return;
-
-        for (int i = 0; i < chores.size(); i++) {
-            // Determine which roommate gets this chore for the selected week
-            int rotatedIndex = (i + currentWeek) % roommates.size();
-            String roommateName = roommates.get(rotatedIndex).getName();
-            displayList.add(new ChoreItem(roommateName, chores.get(i).getName()));
-        }
-
-        adapter.updateList(displayList);
-    }
-
-    private void setupFooter() {
-        Button choresListBtn = findViewById(R.id.choresListBtn);
-        Button scheduleBtn = findViewById(R.id.scheduleBtn);
-
-        scheduleBtn.setOnClickListener(v ->
-                startActivity(new android.content.Intent(this, ScheduleViewActivity.class))
-        );
-        choresListBtn.setOnClickListener(v -> {}); // Already here
+        weekLabel.setText(fmt.format(start) + " - " + fmt.format(end));
     }
 }

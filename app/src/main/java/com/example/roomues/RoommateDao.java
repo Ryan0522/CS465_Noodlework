@@ -3,17 +3,19 @@ package com.example.roomues;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Delete;
 import androidx.lifecycle.LiveData;
 import java.util.List;
 
 @Dao
 public interface RoommateDao {
-    @Insert
-    void insert(RoommateEntity roommate);
 
-    @Query("SELECT * FROM roommates")
-    List<RoommateEntity> getAllRoommates();
+    @Insert void insert(RoommateEntity roommate); // add a new roommate
+    @Delete void delete(RoommateEntity roommate);
 
-    @Query("SELECT * FROM roommates")
-    LiveData<List<RoommateEntity>> getAllRoommatesLive();
+    @Query("SELECT * FROM roommates") List<RoommateEntity> getAll(); // returns all roommates
+    @Query("SELECT * FROM roommates") LiveData<List<RoommateEntity>> getAllLive(); // give a live-updating version
+
+    @Query("SELECT * FROM roommates WHERE id = :id LIMIT 1")
+    RoommateEntity getById(int id);
 }

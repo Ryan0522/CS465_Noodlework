@@ -66,6 +66,15 @@
                 android:text="Cancel"
                 android:backgroundTint="@android:color/darker_gray"
                 android:textColor="@android:color/white"/>
+
+            <ListView
+                android:id="@+id/roommateList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp"
+                android:layout_marginTop="24dp" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -5,18 +5,14 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "roommates")
 public class RoommateEntity {
+
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    public int id; // Unique ID for each roommate
 
-    private String name;
+    public String name; // Roommate's name
 
+    // --- constructor ---
     public RoommateEntity(String name) {
         this.name = name;
     }
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 }

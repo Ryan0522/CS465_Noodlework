@@ -14,8 +14,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.startButton);
 
+        // When pressed -> open the reminder setup screen
         startButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ReminderSetupActivity.class);
+            Intent intent = new Intent(this, ReminderSetupActivity.class);
             startActivity(intent);
         });
     }
