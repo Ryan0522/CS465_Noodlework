@@ -1,17 +1,13 @@
 package com.example.roomues;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
-
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +16,12 @@ public class AddChoreActivity extends AppCompatActivity {
     private EditText inputChore;
     private Spinner frequencySpinner, roommateSpinner;
     private ListView choreListView;
-    private ArrayAdapter<String> choreListAdapter;
+    private Button saveBtn, saveAddAnotehrBtn, cancelBtn;
 
     private RoomiesDatabase db;
     private List<RoommateEntity> roommates = new ArrayList<>();
     private List<ChoreEntity> chores = new ArrayList<>();
+    private ArrayAdapter<String> choreListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +31,10 @@ public class AddChoreActivity extends AppCompatActivity {
         inputChore = findViewById(R.id.inputChore);
         frequencySpinner = findViewById(R.id.frequencySpinner);
         roommateSpinner = findViewById(R.id.roommateSpinner);
-        Button saveBtn = findViewById(R.id.saveButton);
-        Button cancelBtn = findViewById(R.id.cancelButton);
         choreListView = findViewById(R.id.choreList);
+        Button saveBtn = findViewById(R.id.saveButton);
+        Button saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
+        Button cancelBtn = findViewById(R.id.cancelButton);
 
         db = RoomiesDatabase.getDatabase(this);
 
@@ -54,11 +52,26 @@ public class AddChoreActivity extends AppCompatActivity {
         );
         frequencySpinner.setAdapter(freqAdapter);
 
+        // load roommates
         loadRoommates();
+        loadChoreList();
 
-        saveBtn.setOnClickListener(v -> saveChore());
+        // Button actions
+        saveBtn.setOnClickListener(v -> saveChore(true));
+        saveAddAnotherBtn.setOnClickListener(v -> saveChore(false));
         cancelBtn.setOnClickListener(v -> finish());
 
+        // IME Done key triggers save & close
+        inputChore.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        inputChore.setOnEditorActionListener((tv, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                saveChore(true);
+                return true;
+            }
+            return false;
+        });
+
+        // Delete chore on long click
         choreListView.setOnItemLongClickListener((parent, view, position, id) -> {
             ChoreEntity selectedChore = chores.get(position);
             new AlertDialog.Builder(this)
@@ -77,7 +90,7 @@ public class AddChoreActivity extends AppCompatActivity {
         loadChoreList();
     }
 
-    private void saveChore() {
+    private void saveChore(boolean closeAfterSave) {
         String choreName = inputChore.getText().toString().trim();
         if (choreName.isEmpty()) {
             inputChore.setError("Enter a chore name");
@@ -90,25 +103,36 @@ public class AddChoreActivity extends AppCompatActivity {
         }
 
         String frequency = frequencySpinner.getSelectedItem().toString();
-        int selectedIndex = roommateSpinner.getSelectedItemPosition();
-        int roommateId = roommates.get(selectedIndex).id;
+        int roommateId = roommates.get(roommateSpinner.getSelectedItemPosition()).id;
 
         // Create and insert new chore
         ChoreEntity newChore = new ChoreEntity(choreName, frequency, roommateId);
         db.choreDao().insert(newChore);
 
-        // Clear input and refresh list
-        inputChore.setText("");
-        Toast.makeText(this, "Chore added!", Toast.LENGTH_SHORT).show();
-        loadChoreList();
+        // Hide keyboard
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) imm.hideSoftInputFromWindow(inputChore.getWindowToken(), 0);
+
+        if (closeAfterSave) {
+            setResult(RESULT_OK, new Intent());
+            finish();
+        } else {
+            inputChore.setText("");
+            Toast.makeText(this, "Chore added. Add another...", Toast.LENGTH_SHORT).show();
+            loadChoreList();
+        }
     }
 
     private void loadRoommates() {
         roommates = db.roommateDao().getAll();
         List<String> names = new ArrayList<>();
 
-        for (RoommateEntity r : roommates) {
-            names.add(TextUtils.isEmpty(r.name) ? "(Unnamed)" : r.name);
+        if (roommates.isEmpty()) {
+            names.add("No roommates yet");
+        } else {
+            for (RoommateEntity r : roommates) {
+                names.add(TextUtils.isEmpty(r.name) ? "(Unnamed)" : r.name);
+            }
         }
 
         ArrayAdapter<String> roommateAdapter = new ArrayAdapter<>(

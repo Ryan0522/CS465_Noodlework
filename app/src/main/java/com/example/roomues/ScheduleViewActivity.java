@@ -13,6 +13,7 @@ import java.util.*;
 
 public class ScheduleViewActivity extends AppCompatActivity {
 
+    private Button prevWeekBtn, nextWeekBtn;
     private TableLayout scheduleTable;
     private Spinner userSelector;
     private TextView remindersText, weekLabel;
@@ -31,8 +32,8 @@ public class ScheduleViewActivity extends AppCompatActivity {
         scheduleTable.setStretchAllColumns(true);
         scheduleTable.setShrinkAllColumns(true);
 
-        Button prevWeekBtn = findViewById(R.id.prevWeekBtn);
-        Button nextWeekBtn = findViewById(R.id.nextWeekBtn);
+        prevWeekBtn = findViewById(R.id.prevWeekBtn);
+        nextWeekBtn = findViewById(R.id.nextWeekBtn);
 
         prevWeekBtn.setOnClickListener(v -> { currentWeek--; loadSchedule();});
         nextWeekBtn.setOnClickListener(v -> { currentWeek++; loadSchedule();});
@@ -54,6 +55,7 @@ public class ScheduleViewActivity extends AppCompatActivity {
         RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
         List<RoommateEntity> roommates = db.roommateDao().getAll();
         List<ChoreEntity> chores = db.choreDao().getAll();
+        List<ChoreSwapEntity> swaps = db.choreSwapDao().getSwapsForWeek(currentWeek);
 
         scheduleTable.removeAllViews();
 
@@ -87,12 +89,21 @@ public class ScheduleViewActivity extends AppCompatActivity {
                 cell.setPadding(16, 8, 16, 8);
                 int assignedIndex = (i + currentWeek) % roommates.size();
 
+                for (ChoreSwapEntity s : swaps) {
+                    if (s.chore1Id == c.id) {
+                        assignedIndex = findIndexByChoreId(chores, s.chore2Id, roommates.size());
+                    } else if (s.chore2Id == c.id) {
+                        assignedIndex = findIndexByChoreId(chores, s.chore1Id, roommates.size());
+                    }
+                }
+
                 // show checkmark if this roommate has this chore this week
                 cell.setText(assignedIndex == j ? "•" : "");
                 row.addView(cell);
             }
 
             scheduleTable.addView(row);
+            updatePrevButtonState();
         }
 
         // Dropdown for reminders
@@ -111,12 +122,26 @@ public class ScheduleViewActivity extends AppCompatActivity {
         });
     }
 
+    // helper
+    private int findIndexByChoreId(List<ChoreEntity> chores, int targetId, int roommateCount) {
+        for (int k = 0; k < chores.size(); k++) {
+            if (chores.get(k).id == targetId)
+                return k % roommateCount;
+        }
+        return -1;
+    }
+
     @SuppressLint("NewApi")
     private void updateWeekLabel() {
         LocalDate start = LocalDate.now().plusWeeks(currentWeek).with(DayOfWeek.MONDAY);
         LocalDate end = start.plusDays(6);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");
         weekLabel.setText(fmt.format(start) + " - " + fmt.format(end));
+    }
+
+    private void updatePrevButtonState() {
+        prevWeekBtn.setEnabled(currentWeek > 0);
+        prevWeekBtn.setAlpha(currentWeek > 0 ? 1.0f : 0.5f); // dim when disabled
     }
 
     private void showRemindersFor(String name, List<ChoreEntity> chores, List<RoommateEntity> roommates) {

@@ -1,16 +1,18 @@
 package com.example.roomues;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Delete;
+import androidx.room.Update;
 import java.util.List;
-import androidx.lifecycle.LiveData;
 
 @Dao
 public interface ChoreDao {
 
     @Insert void insert(ChoreEntity chore); // add new chore
+    @Update void update(ChoreEntity chore);
     @Delete void delete(ChoreEntity chore); // delete chore
 
     @Query("SELECT * FROM chores")
@@ -18,7 +20,4 @@ public interface ChoreDao {
 
     @Query("SELECT * FROM chores")
     LiveData<List<ChoreEntity>> getAllLive(); // gives live-updating version
-
-    @Query("SELECT * FROM chores WHERE id = :id LIMIT 1")
-    ChoreEntity getById(int id);
 }

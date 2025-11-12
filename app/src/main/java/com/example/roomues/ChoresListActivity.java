@@ -21,6 +21,7 @@ import java.util.List;
 
 public class ChoresListActivity extends AppCompatActivity {
 
+    private Button prevWeekBtn, nextWeekBtn;
     private RecyclerView recyclerView;
     private ChoreAdapter adapter;
     private TextView weekLabel;
@@ -38,8 +39,8 @@ public class ChoresListActivity extends AppCompatActivity {
         // --- find views ---
         recyclerView = findViewById(R.id.choresRecyclerView);
         weekLabel = findViewById(R.id.weekDisplayText);
-        Button prevWeekBtn = findViewById(R.id.prevWeekBtn);
-        Button nextWeekBtn = findViewById(R.id.nextWeekBtn);
+        prevWeekBtn = findViewById(R.id.prevWeekBtn);
+        nextWeekBtn = findViewById(R.id.nextWeekBtn);
         Button addRoommateBtn = findViewById(R.id.addRoommateBtn);
         Button addChoreBtn = findViewById(R.id.addChoreBtn);
         Button swapBtn = findViewById(R.id.swapChoreBtn);
@@ -51,8 +52,10 @@ public class ChoresListActivity extends AppCompatActivity {
 
         // --- setup buttons ---
         prevWeekBtn.setOnClickListener(v -> {
-            currentWeek--;
-            refreshList();
+            if (currentWeek > 0) {
+                currentWeek--;
+                refreshList();
+            }
         });
         nextWeekBtn.setOnClickListener(v -> {
             currentWeek++;
@@ -68,7 +71,7 @@ public class ChoresListActivity extends AppCompatActivity {
         );
 
         swapBtn.setOnClickListener(v ->
-                Toast.makeText(this, "Swap feature coming soon!", Toast.LENGTH_SHORT).show()
+                startActivity(new Intent(this, SwapChoreActivity.class))
         );
 
         // --- footer navigation ---
@@ -95,24 +98,45 @@ public class ChoresListActivity extends AppCompatActivity {
         roommates = db.roommateDao().getAll();
         chores = db.choreDao().getAll();
 
-        List<ChoreItem> groupedList = new ArrayList<>();
+        List<ChoreSwapEntity> swaps = db.choreSwapDao().getSwapsForWeek(currentWeek);
 
+        List<ChoreItem> groupedList = new ArrayList<>();
         if (roommates.isEmpty()) {
             adapter.updateList(groupedList);
             return;
         }
 
         // For each roommate, find their chores
-        for (int i = 0; i < roommates.size(); i++) {
-            RoommateEntity r = roommates.get(i);
+        for (RoommateEntity r : roommates) {
             List<String> theirChores = new ArrayList<>();
 
             for (int j = 0; j < chores.size(); j++) {
                 ChoreEntity c = chores.get(j);
 
-                // rotation logic
+                // Base rotation
                 int assignIndex = (j + currentWeek) % roommates.size();
-                if (roommates.get(assignIndex).id == r.id) {
+                int assignedRoommateId = roommates.get(assignIndex).id;
+
+                // Apply weekly swap if exists
+                for (ChoreSwapEntity s : swaps) {
+                    if (s.chore1Id == c.id) {
+                        // chore1 swapped -> now assigned to chore2's roommate
+                        ChoreEntity swappedWith = findChoreById(chores, s.chore2Id);
+                        if (swappedWith != null) {
+                            int swpIndex = (findChoreIndex(chores, swappedWith) + currentWeek) % roommates.size();
+                            assignedRoommateId = roommates.get(swpIndex).id;
+                        }
+                    } else if (s.chore2Id == c.id) {
+                        // chore2 swapped -> now assigned to chore1's roommate
+                        ChoreEntity swappedWith = findChoreById(chores, s.chore1Id);
+                        if (swappedWith != null) {
+                            int swpIndex = (findChoreIndex(chores, swappedWith) + currentWeek) % roommates.size();
+                            assignedRoommateId = roommates.get(swpIndex).id;
+                        }
+                    }
+                }
+
+                if (assignedRoommateId == r.id) {
                     theirChores.add(c.name);
                 }
             }
@@ -120,11 +144,22 @@ public class ChoresListActivity extends AppCompatActivity {
             String choreText = theirChores.isEmpty()
                     ? "No chores this week"
                     : TextUtils.join(", ", theirChores);
-
             groupedList.add(new ChoreItem(r.name, choreText));
         }
 
         adapter.updateList(groupedList);
+        updatePrevButtonState();
+    }
+
+    // helper
+    private ChoreEntity findChoreById(List<ChoreEntity> list, int id) {
+        for (ChoreEntity c : list) if (c.id == id) return c;
+        return null;
+    }
+
+    private int findChoreIndex(List<ChoreEntity> list, ChoreEntity target) {
+        for (int i = 0; i < list.size(); i++) if (list.get(i).id == target.id) return i;
+        return -1;
     }
 
     @SuppressLint("NewApi")
@@ -133,5 +168,10 @@ public class ChoresListActivity extends AppCompatActivity {
         LocalDate end = start.plusDays(6);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");
         weekLabel.setText(fmt.format(start) + " - " + fmt.format(end));
+    }
+
+    private void updatePrevButtonState() {
+        prevWeekBtn.setEnabled(currentWeek > 0);
+        prevWeekBtn.setAlpha(currentWeek > 0 ? 1.0f : 0.5f); // dim when disabled
     }
 }

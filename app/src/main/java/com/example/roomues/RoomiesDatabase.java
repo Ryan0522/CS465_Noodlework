@@ -7,11 +7,12 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {RoommateEntity.class, ChoreEntity.class}, version = 1)
+@Database(entities = {RoommateEntity.class, ChoreEntity.class, ChoreSwapEntity.class}, version = 2)
 public abstract class RoomiesDatabase extends RoomDatabase {
 
     public abstract RoommateDao roommateDao();
     public abstract ChoreDao choreDao();
+    public abstract ChoreSwapDao choreSwapDao();
 
     private static volatile RoomiesDatabase INSTANCE;
 
@@ -29,7 +30,7 @@ public abstract class RoomiesDatabase extends RoomDatabase {
                                     RoomiesDatabase.class,
                                     "roomies_db"
                             )
-                            // temporary: allow main-thread access for testing
+                            .fallbackToDestructiveMigration()
                             .allowMainThreadQueries()
                             .build();
                 }
