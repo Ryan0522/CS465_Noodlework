@@ -18,4 +18,7 @@ public interface RoommateDao {
 
     @Query("SELECT * FROM roommates WHERE id = :id LIMIT 1") RoommateEntity getById(int id);
     @Query("SELECT COUNT(*) FROM roommates WHERE LOWER(name) = LOWER(:name)") int countByName(String name);
+
+    @Query("SELECT * FROM roommates WHERE name = :name LIMIT 1")
+    RoommateEntity getRoommateByName(String name);
 }

@@ -107,7 +107,7 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:text="Select Your Name to See Reminders"
+                    android:text="My To-Do's and Reminders This Week:"
                     android:layout_marginTop="8dp"
                     android:textColor="@android:color/black"
                     android:textStyle="bold"
@@ -138,8 +138,8 @@
         </LinearLayout>
     </LinearLayout>
 
-    <include
+    <include layout="@layout/bottom_nav"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/footer_nav" />
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>

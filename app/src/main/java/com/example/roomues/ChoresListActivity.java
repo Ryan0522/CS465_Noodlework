@@ -74,14 +74,7 @@ public class ChoresListActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SwapChoreActivity.class))
         );
 
-        // --- footer navigation ---
-        Button choresListBtn = findViewById(R.id.choresListBtn);
-        Button scheduleBtn = findViewById(R.id.scheduleBtn);
-        choresListBtn.setOnClickListener(v -> {
-        }); // Already here
-        scheduleBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, ScheduleViewActivity.class))
-        );
+        NavBarHelper.setupBottomNav(this, "home");
     }
 
     @Override
@@ -103,6 +96,8 @@ public class ChoresListActivity extends AppCompatActivity {
         List<ChoreItem> groupedList = new ArrayList<>();
         if (roommates.isEmpty()) {
             adapter.updateList(groupedList);
+
+            adapter.setHighlightName(null);
             return;
         }
 
@@ -148,6 +143,16 @@ public class ChoresListActivity extends AppCompatActivity {
         }
 
         adapter.updateList(groupedList);
+
+        int uid = UserManager.getCurrentUser(this);
+        String highlight = null;
+        if (uid != -1) {
+            for (RoommateEntity r : roommates) {
+                if (r.id == uid) { highlight = r.name; break; }
+            }
+        }
+        adapter.setHighlightName(highlight);
+
         updatePrevButtonState();
     }
 
