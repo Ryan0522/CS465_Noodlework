@@ -192,7 +192,7 @@ public class AddChoreActivity extends AppCompatActivity {
                     break;
                 }
             }
-            choreNames.add(c.name + " • " + c.frequency + " • " + roommateName);
+            choreNames.add(c.name + " • " + c.frequency + " • Due: " + c.dueDays + " • " + roommateName);
         }
 
         choreListAdapter = new ArrayAdapter<>(

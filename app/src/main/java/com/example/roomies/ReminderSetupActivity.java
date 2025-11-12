@@ -17,6 +17,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
     private RadioGroup yesNoGroup;
     private LinearLayout daysLayout, timesLayout;
     private boolean nameConfirmed = false;
+    private RoomiesDatabase db;
     private RoommateDao roommateDao;
     private int currentUserId = -1;
 
@@ -41,7 +42,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
         cancelButton = findViewById(R.id.cancelButton);
 
         // --- access database ---
-        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
+        db = RoomiesDatabase.getDatabase(this);
         roommateDao = db.roommateDao();
 
         // --- disable everything at start ---
@@ -106,8 +107,37 @@ public class ReminderSetupActivity extends AppCompatActivity {
 
                 UserManager.setReminderDays(this, String.join(",", selectedDays));
                 UserManager.setReminderTimes(this, String.join(",", selectedTimes));
+
+                // Delete old auto reminders
+                List<ReminderEntity> allRems = db.reminderDao().getAll();
+                for (ReminderEntity r : allRems) {
+                    if (r.isAuto) db.reminderDao().delete(r);
+                }
+
+                // Recreate auto reminders for each of user's chores
+                int currentUser = UserManager.getCurrentUser(this);
+                List<ChoreEntity> chores = db.choreDao().getAll();
+                for (ChoreEntity c : chores) {
+                    if (c.roommateId != currentUser) continue;
+                    List<ReminderEntity> generated = ReminderAutoGenerator.buildAutoRemindersForChore(
+                            c, selectedDays, selectedTimes
+                    );
+                    for (ReminderEntity g : generated) {
+                        db.reminderDao().insert(g);
+                    }
+                }
+
+                Toast.makeText(this, "Auto reminders updated.", Toast.LENGTH_SHORT).show();
+            } else {
+                // Auto reminders off → remove all previous ones
+                List<ReminderEntity> allRems = db.reminderDao().getAll();
+                for (ReminderEntity r : allRems) {
+                    if (r.isAuto) db.reminderDao().delete(r);
+                }
+                Toast.makeText(this, "Auto reminders removed.", Toast.LENGTH_SHORT).show();
             }
 
+            // Lock UI
             setGroupEnabled(yesNoGroup, false);
             setLayoutEnabled(daysLayout, false);
             setLayoutEnabled(timesLayout, false);

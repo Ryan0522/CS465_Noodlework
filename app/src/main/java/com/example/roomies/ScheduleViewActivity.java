@@ -172,13 +172,6 @@ public class ScheduleViewActivity extends AppCompatActivity {
         }
     }
 
-    private int findRoommateIndexById(List<RoommateEntity> list, int id) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).id == id) return i;
-        }
-        return 0;
-    }
-
     private void setupUserDropdown(List<RoommateEntity> roommates, List<ChoreEntity> chores) {
         List<String> names = new ArrayList<>();
         for (RoommateEntity r : roommates) names.add(r.name);
@@ -234,13 +227,23 @@ public class ScheduleViewActivity extends AppCompatActivity {
 
     private void showRemindersFor(String name, List<ChoreEntity> chores, List<RoommateEntity> roommates) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < chores.size(); i++) {
-            int assignedIndex = (i + currentWeek + 2) % roommates.size();
+        for (ChoreEntity c : chores) {
+            int assignedIndex = findRoommateIndexById(roommates, c.roommateId);
+            if (currentWeek > 0) {
+                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
+            }
             String assigned = roommates.get(assignedIndex).name;
             if (assigned.equals(name)) {
-                sb.append("• ").append(chores.get(i).name).append("\n");
+                sb.append("• ").append(c.name).append("\n");
             }
         }
         remindersText.setText("Your Chores:\n" + sb);
+    }
+
+    private int findRoommateIndexById(List<RoommateEntity> list, int id) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id == id) return i;
+        }
+        return 0;
     }
 }
