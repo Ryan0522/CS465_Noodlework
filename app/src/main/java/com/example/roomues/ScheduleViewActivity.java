@@ -105,12 +105,14 @@ public class ScheduleViewActivity extends AppCompatActivity {
         TextView choreHeader = new TextView(this);
         choreHeader.setText("Chore");
         choreHeader.setPadding(16, 8, 16, 8);
+        choreHeader.setTextSize(18);
         header.addView(choreHeader);
 
         for (RoommateEntity r : roommates) {
             TextView nameTv = new TextView(this);
             nameTv.setText(r.name);
             nameTv.setPadding(16, 8, 16, 8);
+            nameTv.setTextSize(18);
             if (r.id == userId) {
                 nameTv.setTextColor(ContextCompat.getColor(this, R.color.user_highlight));
             }
@@ -126,6 +128,7 @@ public class ScheduleViewActivity extends AppCompatActivity {
             TextView choreName = new TextView(this);
             choreName.setText(c.name);
             choreName.setPadding(16, 8, 16, 8);
+            choreName.setTextSize(18);
             row.addView(choreName);
 
             // Base rotation
@@ -145,6 +148,7 @@ public class ScheduleViewActivity extends AppCompatActivity {
             for (int j = 0; j < roommates.size(); j++) {
                 TextView cell = new TextView(this);
                 cell.setPadding(16, 8, 16, 8);
+                cell.setTextSize(18);
                 cell.setText(j == assignedIndex ? "●" : ""); // mark the assignee
 
                 // Highlight the mark if the assignee is the current user

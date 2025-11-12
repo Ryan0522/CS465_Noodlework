@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
@@ -36,8 +37,7 @@ public class NavBarHelper {
 
         remindersContainer.setOnClickListener(v -> {
             if (!currentScreen.equals("reminder")) {
-                activity.startActivity(new Intent(activity, ReminderSetupActivity.class));
-                activity.overridePendingTransition(0, 0);
+                Toast.makeText(activity, "Reminders coming soon!", Toast.LENGTH_SHORT).show();
             }
         });
 
