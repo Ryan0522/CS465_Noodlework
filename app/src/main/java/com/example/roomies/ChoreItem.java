@@ -1,4 +1,4 @@
-package com.example.roomues;
+package com.example.roomies;
 
 public class ChoreItem {
     private final String roommate;

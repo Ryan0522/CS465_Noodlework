@@ -1,7 +1,6 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 public class UserManager {
     private static final String PREFS = "roomies_prefs";

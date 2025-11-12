@@ -1,4 +1,4 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;

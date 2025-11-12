@@ -1,4 +1,4 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.content.Intent;
 import android.os.Bundle;

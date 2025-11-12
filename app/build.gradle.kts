@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.roomues"
+    namespace = "com.example.roomies"
     compileSdk = 34   // Use a stable version you have installed (e.g., 34)
 
     defaultConfig {
-        applicationId = "com.example.roomues"
+        applicationId = "com.example.roomies"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

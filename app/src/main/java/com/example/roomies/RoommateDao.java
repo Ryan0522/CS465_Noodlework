@@ -1,4 +1,4 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

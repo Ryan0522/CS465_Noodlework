@@ -1,4 +1,4 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.app.AlertDialog;
 import android.content.Intent;

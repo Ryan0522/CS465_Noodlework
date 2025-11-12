@@ -1,11 +1,10 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
-import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;

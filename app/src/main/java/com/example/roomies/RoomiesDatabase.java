@@ -1,11 +1,9 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Database(entities = {RoommateEntity.class, ChoreEntity.class, ChoreSwapEntity.class}, version = 2)
 public abstract class RoomiesDatabase extends RoomDatabase {

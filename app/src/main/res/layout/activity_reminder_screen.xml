@@ -24,7 +24,7 @@
 
             <!-- Your existing content (unchanged), starting with the title -->
             <TextView
-                android:text="Default Reminder Setup"
+                android:text="Settings"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
