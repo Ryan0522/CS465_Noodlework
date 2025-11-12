@@ -10,27 +10,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        int userId = UserManager.getCurrentUser(this);
-
-        if (userId != -1) {
-            Intent intent = new Intent(this, ChoresListActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
         setContentView(R.layout.activity_main);
-        setupNav();
 
-    }
-
-    private void setupNav() {
-        Button startButton = findViewById(R.id.startButton);
-
-        // When pressed -> open the reminder setup screen
-        startButton.setOnClickListener(v -> {
+        Button startBtn = findViewById(R.id.startButton);
+        startBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, ReminderSetupActivity.class);
             startActivity(intent);
         });
+
+        int userId = UserManager.getCurrentUser(this);
+        if (userId != -1) {
+            Intent intent = new Intent(this, ChoresListActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 }

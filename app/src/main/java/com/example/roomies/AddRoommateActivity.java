@@ -38,6 +38,7 @@ public class AddRoommateActivity extends AppCompatActivity {
         // Disable save until text present
         saveBtn.setEnabled(false);
         saveAddAnotherBtn.setEnabled(false);
+
         inputRoommate.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
             @Override public void onTextChanged(CharSequence s, int st, int b, int c) {

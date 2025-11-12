@@ -5,12 +5,18 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {RoommateEntity.class, ChoreEntity.class, ChoreSwapEntity.class}, version = 2)
+@Database(entities = {
+        RoommateEntity.class,
+        ChoreEntity.class,
+        ChoreSwapEntity.class,
+        ReminderEntity.class
+}, version = 4)
 public abstract class RoomiesDatabase extends RoomDatabase {
 
     public abstract RoommateDao roommateDao();
     public abstract ChoreDao choreDao();
     public abstract ChoreSwapDao choreSwapDao();
+    public abstract  ReminderDao reminderDao();
 
     private static volatile RoomiesDatabase INSTANCE;
 

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
@@ -15,8 +16,9 @@ public class AddChoreActivity extends AppCompatActivity {
 
     private EditText inputChore;
     private Spinner frequencySpinner, roommateSpinner;
+    private LinearLayout daysLayout;
     private ListView choreListView;
-    private Button saveBtn, saveAddAnotehrBtn, cancelBtn;
+    private Button saveBtn, saveAddAnotherBtn, cancelBtn;
 
     private RoomiesDatabase db;
     private List<RoommateEntity> roommates = new ArrayList<>();
@@ -32,9 +34,10 @@ public class AddChoreActivity extends AppCompatActivity {
         frequencySpinner = findViewById(R.id.frequencySpinner);
         roommateSpinner = findViewById(R.id.roommateSpinner);
         choreListView = findViewById(R.id.choreList);
-        Button saveBtn = findViewById(R.id.saveButton);
-        Button saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
-        Button cancelBtn = findViewById(R.id.cancelButton);
+        daysLayout = findViewById(R.id.daysLayout);
+        saveBtn = findViewById(R.id.saveButton);
+        saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
+        cancelBtn = findViewById(R.id.cancelButton);
 
         db = RoomiesDatabase.getDatabase(this);
 
@@ -52,7 +55,7 @@ public class AddChoreActivity extends AppCompatActivity {
         );
         frequencySpinner.setAdapter(freqAdapter);
 
-        // load roommates
+        // load roommates and chores
         loadRoommates();
         loadChoreList();
 
@@ -86,8 +89,6 @@ public class AddChoreActivity extends AppCompatActivity {
                     .show();
             return true;
         });
-
-        loadChoreList();
     }
 
     private void saveChore(boolean closeAfterSave) {
@@ -102,11 +103,47 @@ public class AddChoreActivity extends AppCompatActivity {
             return;
         }
 
+        // Get frequency and map it to number of required days
         String frequency = frequencySpinner.getSelectedItem().toString();
+        int requiredDays = 1;
+        switch (frequency) {
+            case "1x a Week":
+                requiredDays = 1;
+                break;
+            case "2x a Week":
+                requiredDays = 2;
+                break;
+            case "3x a Week":
+                requiredDays = 3;
+                break;
+            case "Daily":
+                requiredDays = 7;
+                break;
+        }
+
+        // Collect selected days
+        List<String> selectedDays = new ArrayList<>();
+        for (int i = 0; i < daysLayout.getChildCount(); i++) {
+            View v = daysLayout.getChildAt(i);
+            if (v instanceof CheckBox && ((CheckBox) v).isChecked()) {
+                selectedDays.add(((CheckBox) v).getText().toString());
+            }
+        }
+        if (selectedDays.size() != requiredDays) {
+            Toast.makeText(
+                    this,
+                    "You selected " + selectedDays.size() +
+                            " day(s), but " + frequency + " requires " + requiredDays + ".",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
+
+        String dueDaysCsv = TextUtils.join(",", selectedDays);
         int roommateId = roommates.get(roommateSpinner.getSelectedItemPosition()).id;
 
-        // Create and insert new chore
-        ChoreEntity newChore = new ChoreEntity(choreName, frequency, roommateId);
+        // Insert new chore
+        ChoreEntity newChore = new ChoreEntity(choreName, frequency, roommateId, dueDaysCsv);
         db.choreDao().insert(newChore);
 
         // Hide keyboard

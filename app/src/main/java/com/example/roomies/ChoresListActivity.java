@@ -104,29 +104,23 @@ public class ChoresListActivity extends AppCompatActivity {
         for (RoommateEntity r : roommates) {
             List<String> theirChores = new ArrayList<>();
 
-            for (int j = 0; j < chores.size(); j++) {
-                ChoreEntity c = chores.get(j);
+            for (ChoreEntity c : chores) {
+                int assignedRoommateId = c.roommateId;
 
-                // Base rotation
-                int assignIndex = (j + currentWeek) % roommates.size();
-                int assignedRoommateId = roommates.get(assignIndex).id;
+                // Rotation
+                if (currentWeek > 0) {
+                    int idx = findChoreIndex(chores, c);
+                    assignedRoommateId = roommates.get((idx + currentWeek) % roommates.size()).id;
+                }
 
                 // Apply weekly swap if exists
                 for (ChoreSwapEntity s : swaps) {
                     if (s.chore1Id == c.id) {
-                        // chore1 swapped -> now assigned to chore2's roommate
                         ChoreEntity swappedWith = findChoreById(chores, s.chore2Id);
-                        if (swappedWith != null) {
-                            int swpIndex = (findChoreIndex(chores, swappedWith) + currentWeek) % roommates.size();
-                            assignedRoommateId = roommates.get(swpIndex).id;
-                        }
+                        if (swappedWith != null) assignedRoommateId = swappedWith.roommateId;
                     } else if (s.chore2Id == c.id) {
-                        // chore2 swapped -> now assigned to chore1's roommate
                         ChoreEntity swappedWith = findChoreById(chores, s.chore1Id);
-                        if (swappedWith != null) {
-                            int swpIndex = (findChoreIndex(chores, swappedWith) + currentWeek) % roommates.size();
-                            assignedRoommateId = roommates.get(swpIndex).id;
-                        }
+                        if (swappedWith != null) assignedRoommateId = swappedWith.roommateId;
                     }
                 }
 

@@ -22,10 +22,14 @@ public class ChoreEntity {
     public String frequency; // e.g., "Weekly"
     public int roommateId; // which roommate is assigned
 
+    // NEW: default due-day
+    public String dueDays;
+
     // --- constructor ---
-    public ChoreEntity(String name, String frequency, int roommateId) {
+    public ChoreEntity(String name, String frequency, int roommateId, String dueDays) {
         this.name = name;
         this.frequency = frequency;
         this.roommateId = roommateId;
+        this.dueDays = dueDays; // default value
     }
 }

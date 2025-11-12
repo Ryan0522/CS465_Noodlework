@@ -31,6 +31,12 @@
             android:name=".SwapChoreActivity"
             android:exported="false" />
         <activity
+            android:name=".RemindersListActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".AddReminderActivity"
+            android:exported="false"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

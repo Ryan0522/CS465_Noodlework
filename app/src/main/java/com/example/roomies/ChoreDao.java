@@ -20,4 +20,7 @@ public interface ChoreDao {
 
     @Query("SELECT * FROM chores")
     LiveData<List<ChoreEntity>> getAllLive(); // gives live-updating version
+
+    @Query("SELECT * FROM chores WHERE roommateId = :roommateId")
+    List<ChoreEntity> getByRoommate(int roommateId);
 }

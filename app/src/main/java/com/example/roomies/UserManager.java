@@ -1,43 +1,55 @@
 package com.example.roomies;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 public class UserManager {
-    private static final String PREFS = "roomies_prefs";
-    private static final String KEY_USER_ID = "current_user_id";
-    private static final String KEY_FIRST_LAUNCH = "is_first_launch";
 
-    public static void setCurrentUser(Context ctx, int userId) {
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putInt(KEY_USER_ID, userId).apply();
+    private static final String PREFS_NAME = "roomies_prefs";
+    private static final String KEY_CURRENT_USER_ID = "current_user_id";
+    private static final String KEY_AUTO_REMINDERS = "auto_reminders";
+
+    // --- user id ---
+    public static void setCurrentUser(Context context, int userId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_CURRENT_USER_ID, userId).apply();
     }
 
-    public static int getCurrentUser(Context ctx) {
-        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getInt(KEY_USER_ID, -1);
+    public static int getCurrentUser(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_CURRENT_USER_ID, -1);
     }
 
-    private static final String KEY_SHARED_URL = "shared_url";
-
-    public static void setSharedUrl(Context context, String url) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit()
-                .putString(KEY_SHARED_URL, url)
-                .apply();
+    // --- auto reminders ---
+    public static void setAutoRemindersEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_AUTO_REMINDERS, enabled).apply();
     }
 
-    public static String getSharedUrl(Context context) {
-        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString(KEY_SHARED_URL, null);
+    public static boolean getAutoRemindersEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_AUTO_REMINDERS, false);
     }
 
-    public static boolean isFirstLaunch(Context ctx) {
-        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getBoolean(KEY_FIRST_LAUNCH, true);
+    private static final String KEY_REMINDER_DAYS = "reminder_days";
+    private static final String KEY_REMINDER_TIMES = "reminder_times";
+
+    public static void setReminderDays(Context ctx, String daysCsv) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        p.edit().putString(KEY_REMINDER_DAYS, daysCsv).apply();
+    }
+    public static String getReminderDays(Context ctx) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return p.getString(KEY_REMINDER_DAYS, "");
     }
 
-    public static void setNotFirstLaunch(Context ctx) {
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
+    public static void setReminderTimes(Context ctx, String timesCsv) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        p.edit().putString(KEY_REMINDER_TIMES, timesCsv).apply();
     }
+    public static String getReminderTimes(Context ctx) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return p.getString(KEY_REMINDER_TIMES, "");
+    }
+
 }

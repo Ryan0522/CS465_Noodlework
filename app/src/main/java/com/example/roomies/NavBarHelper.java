@@ -12,6 +12,14 @@ import androidx.core.content.ContextCompat;
 public class NavBarHelper {
 
     public static void setupBottomNav(Activity activity, String currentScreen) {
+        if (activity == null) return;
+
+        View bottomNav = activity.findViewById(R.id.bottomNav);
+        if (bottomNav == null) {
+            Toast.makeText(activity, "⚠️ Bottom navigation not found in this layout.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Home
         View homeContainer = activity.findViewById(R.id.navHomeContainer);
         View scheduleContainer = activity.findViewById(R.id.navScheduleContainer);
@@ -37,7 +45,8 @@ public class NavBarHelper {
 
         remindersContainer.setOnClickListener(v -> {
             if (!currentScreen.equals("reminder")) {
-                Toast.makeText(activity, "Reminders coming soon!", Toast.LENGTH_SHORT).show();
+                activity.startActivity(new Intent(activity, RemindersListActivity.class));
+                activity.overridePendingTransition(0, 0);
             }
         });
 

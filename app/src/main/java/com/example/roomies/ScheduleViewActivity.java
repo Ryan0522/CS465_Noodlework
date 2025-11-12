@@ -131,7 +131,10 @@ public class ScheduleViewActivity extends AppCompatActivity {
             row.addView(choreName);
 
             // Base rotation
-            int assignedIndex = (i + currentWeek) % roommates.size();
+            int assignedIndex = findRoommateIndexById(roommates, c.roommateId);
+            if (currentWeek > 0) {
+                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
+            }
 
             // With Swap
             for (ChoreSwapEntity s : swaps) {
@@ -167,6 +170,13 @@ public class ScheduleViewActivity extends AppCompatActivity {
         if (userId != -1) {
             userSelector.setEnabled(false);
         }
+    }
+
+    private int findRoommateIndexById(List<RoommateEntity> list, int id) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id == id) return i;
+        }
+        return 0;
     }
 
     private void setupUserDropdown(List<RoommateEntity> roommates, List<ChoreEntity> chores) {
