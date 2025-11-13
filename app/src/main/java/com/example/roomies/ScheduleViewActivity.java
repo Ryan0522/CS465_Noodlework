@@ -132,19 +132,20 @@ public class ScheduleViewActivity extends AppCompatActivity {
 
             // Base rotation
             int assignedIndex = findRoommateIndexById(roommates, c.roommateId);
-            if (currentWeek > 0) {
-                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
-            }
 
             // With Swap
             for (ChoreSwapEntity s : swaps) {
                 if (s.chore1Id == c.id) {
-                    int k = findChoreIndex(chores, s.chore2Id);
-                    if (k != -1) assignedIndex = (k + currentWeek) % roommates.size();
+                    ChoreEntity swappedWith = findChoreById(chores, s.chore2Id);
+                    if (swappedWith != null) assignedIndex = findRoommateIndexById(roommates, swappedWith.roommateId);
                 } else if (s.chore2Id == c.id) {
-                    int k = findChoreIndex(chores, s.chore1Id);
-                    if (k != -1) assignedIndex = (k + currentWeek) % roommates.size();
+                    ChoreEntity swappedWith = findChoreById(chores, s.chore1Id);
+                    if (swappedWith != null) assignedIndex = findRoommateIndexById(roommates, swappedWith.roommateId);
                 }
+            }
+
+            if (currentWeek > 0) {
+                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
             }
 
             for (int j = 0; j < roommates.size(); j++) {
@@ -205,11 +206,9 @@ public class ScheduleViewActivity extends AppCompatActivity {
     }
 
     // helper
-    private int findChoreIndex(List<ChoreEntity> list, int targetId) {
-        for (int k = 0; k < list.size(); k++) {
-            if (list.get(k).id == targetId) return k;
-        }
-        return -1;
+    private ChoreEntity findChoreById(List<ChoreEntity> list, int id) {
+        for (ChoreEntity c : list) if (c.id == id) return c;
+        return null;
     }
 
     @SuppressLint("NewApi")
@@ -226,17 +225,36 @@ public class ScheduleViewActivity extends AppCompatActivity {
     }
 
     private void showRemindersFor(String name, List<ChoreEntity> chores, List<RoommateEntity> roommates) {
+        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
+        List<ChoreSwapEntity> swaps = db.choreSwapDao().getSwapsForWeek(currentWeek);
+
         StringBuilder sb = new StringBuilder();
+
         for (ChoreEntity c : chores) {
-            int assignedIndex = findRoommateIndexById(roommates, c.roommateId);
-            if (currentWeek > 0) {
-                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
+            int baseIndex = findRoommateIndexById(roommates, c.roommateId);
+
+            // apply swap BEFORE rotation
+            for (ChoreSwapEntity s : swaps) {
+                if (s.chore1Id == c.id) {
+                    ChoreEntity other = findChoreById(chores, s.chore2Id);
+                    if (other != null)
+                        baseIndex = findRoommateIndexById(roommates, other.roommateId);
+
+                } else if (s.chore2Id == c.id) {
+                    ChoreEntity other = findChoreById(chores, s.chore1Id);
+                    if (other != null)
+                        baseIndex = findRoommateIndexById(roommates, other.roommateId);
+                }
             }
-            String assigned = roommates.get(assignedIndex).name;
-            if (assigned.equals(name)) {
+
+            // apply weekly rotation
+            int assignedIndex = (baseIndex + currentWeek) % roommates.size();
+
+            if (roommates.get(assignedIndex).name.equals(name)) {
                 sb.append("• ").append(c.name).append("\n");
             }
         }
+
         remindersText.setText("Your Chores:\n" + sb);
     }
 
