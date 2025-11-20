@@ -162,7 +162,16 @@
                 android:text="+ Add Chore"
                 android:backgroundTint="@android:color/holo_green_dark"
                 android:textColor="@android:color/white" />
+            <Button
+                android:id="@+id/editRoommateBtn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="✏️ Edit Roommate"
+                android:backgroundTint="@android:color/holo_orange_dark"
+                android:textColor="@android:color/white" />
         </LinearLayout>
+
     </LinearLayout>
 
     <include

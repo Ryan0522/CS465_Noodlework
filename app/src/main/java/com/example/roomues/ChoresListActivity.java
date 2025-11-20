@@ -80,6 +80,13 @@ public class ChoresListActivity extends AppCompatActivity {
         Button addRoommateBtn = findViewById(R.id.addRoommateBtn);
         Button addChoreBtn = findViewById(R.id.addChoreBtn);
         Button swapChoreBtn = findViewById(R.id.swapChoreBtn);
+        Button editRoommateBtn = findViewById(R.id.editRoommateBtn);
+
+        editRoommateBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(ChoresListActivity.this, EditRoommateActivity.class);
+            startActivity(intent);
+        });
+
 
         addChoreBtn.setOnClickListener(v -> {
             Intent intent = new Intent(ChoresListActivity.this, AddChoreActivity.class);
