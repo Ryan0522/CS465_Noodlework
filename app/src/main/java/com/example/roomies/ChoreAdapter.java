@@ -1,19 +1,28 @@
-package com.example.roomues;
+package com.example.roomies;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ViewHolder> {
 
     private List<ChoreItem> chores;
+    private String highlightName = null;
 
     public ChoreAdapter(List<ChoreItem> chores) {
         this.chores = chores;
+    }
+
+    public void setHighlightName(String name) {
+        this.highlightName = name;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -29,6 +38,22 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ViewHolder> 
         ChoreItem item = chores.get(position);
         holder.roommateText.setText(item.getRoommate());
         holder.choreText.setText(item.getChore());
+
+        // default colors
+        holder.roommateText.setTextColor(
+                ContextCompat.getColor(holder.itemView.getContext(), R.color.text_primary)
+        );
+
+        // highlight current user row
+        if (highlightName != null && highlightName.equals(item.getRoommate())) {
+            holder.roommateText.setTextColor(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.user_highlight)
+            );
+            // add a dot cue before the roommate name
+            if (!holder.roommateText.getText().toString().startsWith("• ")) {
+                holder.roommateText.setText("• " + holder.roommateText.getText());
+            }
+        }
     }
 
     @Override

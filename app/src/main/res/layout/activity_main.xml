@@ -39,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_purple"
-        android:text="Create a Chores Schedule"
+        android:text="Create / Join a Chores Schedule"
         android:textAllCaps="false"
         android:textColor="@android:color/white" />
 </LinearLayout>

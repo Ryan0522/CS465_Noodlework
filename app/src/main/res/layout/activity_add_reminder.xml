@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add / Edit Reminder"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="12dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#CCCCCC"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Info section -->
+        <TextView
+            android:text="Roommate:"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/roommateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alice"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:text="Chore:"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/choreText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trash"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:text="Due Day(s):"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/dueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sat"
+            android:layout_marginBottom="12dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginVertical="12dp" />
+
+        <!-- Quick Setup -->
+        <TextView
+            android:text="Quick Reminder Setup"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnToday"
+                android:layout_width="100dp"
+                android:layout_height="45dp"
+                android:text="Today"
+                android:layout_marginEnd="8dp" />
+            <Button
+                android:id="@+id/btnTomorrow"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:text="Tomorrow" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn8am"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:text="8AM"
+                android:layout_marginEnd="8dp" />
+            <Button
+                android:id="@+id/btn3pm"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:text="3PM"
+                android:layout_marginEnd="8dp" />
+            <Button
+                android:id="@+id/btn6pm"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:text="6PM"
+                android:layout_marginEnd="8dp" />
+            <Button
+                android:id="@+id/btn9pm"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:text="9PM" />
+        </LinearLayout>
+
+        <!-- Custom Time Picker -->
+        <TextView
+            android:text="or choose a custom time"
+            android:textStyle="italic"
+            android:textColor="@android:color/darker_gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:timePickerMode="spinner"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Comments -->
+        <EditText
+            android:id="@+id/commentInput"
+            android:hint="Comments (optional)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Cancel"
+                android:backgroundTint="@android:color/darker_gray"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Save"
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

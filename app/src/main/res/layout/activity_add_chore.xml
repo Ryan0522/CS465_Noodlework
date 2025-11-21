@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
@@ -54,7 +54,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Assign to Roommate"
+            android:text="Week 1 Assignment to Roommate"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -65,6 +65,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:text="Due Date(s) in a Week"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="M" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="T" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="W" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="R" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="F" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
 
 
         <LinearLayout
@@ -78,8 +102,18 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Save"
+                android:text="Save &amp; Close"
                 android:backgroundTint="@android:color/holo_green_dark"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/saveAddAnotherButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Save &amp; Add Another"
+                android:backgroundTint="@android:color/holo_blue_dark"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="8dp"/>
 
@@ -91,6 +125,24 @@
                 android:text="Cancel"
                 android:backgroundTint="@android:color/darker_gray"
                 android:textColor="@android:color/white"/>
+
         </LinearLayout>
+
+        <TextView
+            android:text="Current Chores (Hold to Delete)"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+        <ListView
+            android:id="@+id/choreList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:layout_marginTop="24dp" />
+
     </LinearLayout>
-</ScrollView>
+</LinearLayout>
