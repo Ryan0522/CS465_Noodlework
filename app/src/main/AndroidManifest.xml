@@ -16,6 +16,9 @@
             android:name=".ScheduleViewActivity"
             android:exported="false" />
         <activity
+            android:name=".SwapChoreActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddRoommateActivity"
             android:exported="false" />
         <activity
