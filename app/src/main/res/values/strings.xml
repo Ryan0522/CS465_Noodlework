@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Roomies</string>
+    <string name="Home">Home</string>
+    <string name="Schedule">Schedule</string>
+    <string name="Reminders">Reminders</string>
+    <string name="Settings">Settings</string>
 </resources>
