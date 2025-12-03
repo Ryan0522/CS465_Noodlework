@@ -3,6 +3,7 @@ package com.example.roomies;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -16,9 +17,13 @@ public class AddChoreActivity extends AppCompatActivity {
 
     private EditText inputChore;
     private Spinner frequencySpinner, roommateSpinner;
-    private LinearLayout daysLayout;
+    private LinearLayout daysLayout, undoBar;
     private ListView choreListView;
     private Button saveBtn, saveAddAnotherBtn, cancelBtn;
+    private TextView undoMessage, undoButton;
+
+    private CountDownTimer countDownTimer;
+    private ChoreEntity pendingDeleteChore;
 
     private RoomiesDatabase db;
     private List<RoommateEntity> roommates = new ArrayList<>();
@@ -38,6 +43,10 @@ public class AddChoreActivity extends AppCompatActivity {
         saveBtn = findViewById(R.id.saveButton);
         saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
         cancelBtn = findViewById(R.id.cancelButton);
+
+        undoBar = findViewById(R.id.undoBar);
+        undoMessage = findViewById(R.id.undoMessage);
+        undoButton = findViewById(R.id.undoButton);
 
         db = RoomiesDatabase.getDatabase(this);
 
@@ -74,21 +83,62 @@ public class AddChoreActivity extends AppCompatActivity {
             return false;
         });
 
-        // Delete chore on long click
         choreListView.setOnItemLongClickListener((parent, view, position, id) -> {
             ChoreEntity selectedChore = chores.get(position);
             new AlertDialog.Builder(this)
                     .setTitle("Delete Chore")
                     .setMessage("Delete chore \"" + selectedChore.name + "\"?")
                     .setPositiveButton("Delete", (dialog, which) -> {
+                        pendingDeleteChore = selectedChore;
                         db.choreDao().delete(selectedChore);
-                        Toast.makeText(this, "Chore deleted.", Toast.LENGTH_SHORT).show();
                         loadChoreList();
+                        showUndoBar(selectedChore.name);
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
             return true;
         });
+
+        undoButton.setOnClickListener(v -> performUndo());
+    }
+
+    private void showUndoBar(String choreName) {
+        undoMessage.setText("Deleted: " + choreName);
+        undoBar.setVisibility(View.VISIBLE);
+
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        countDownTimer = new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                undoButton.setText("UNDO (" + (millisUntilFinished / 1000) + "s)");
+            }
+
+            @Override
+            public void onFinish() {
+                hideUndoBar();
+                pendingDeleteChore = null;
+            }
+        }.start();
+    }
+
+    private void hideUndoBar() {
+        undoBar.setVisibility(View.GONE);
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+    }
+
+    private void performUndo() {
+        if (pendingDeleteChore != null) {
+            db.choreDao().insert(pendingDeleteChore);
+            pendingDeleteChore = null;
+            hideUndoBar();
+            loadChoreList();
+        }
     }
 
     private void saveChore(boolean closeAfterSave) {

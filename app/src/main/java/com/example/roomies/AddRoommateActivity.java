@@ -3,8 +3,10 @@ package com.example.roomies;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,11 @@ public class AddRoommateActivity extends AppCompatActivity {
     private RoomiesDatabase db;
     private Button saveBtn, saveAddAnotherBtn, cancelBtn;
 
+    private LinearLayout undoBar;
+    private TextView undoMessage, undoButton;
+    private CountDownTimer countDownTimer;
+    private RoommateEntity pendingDeleteRoommate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +41,10 @@ public class AddRoommateActivity extends AppCompatActivity {
         saveBtn = findViewById(R.id.saveButton);
         saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
         cancelBtn = findViewById(R.id.cancelButton);
+
+        undoBar = findViewById(R.id.undoBar);
+        undoMessage = findViewById(R.id.undoMessage);
+        undoButton = findViewById(R.id.undoButton);
 
         // Disable save until text present
         saveBtn.setEnabled(false);
@@ -59,15 +70,58 @@ public class AddRoommateActivity extends AppCompatActivity {
                     .setTitle("Delete roommate?")
                     .setMessage("Remove " + r.name + " from the list?")
                     .setPositiveButton("Delete", (d, w) -> {
+                        pendingDeleteRoommate = r;
                         db.roommateDao().delete(r);
                         loadList();
+                        showUndoBar(r.name);
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
             return true;
         });
 
+        undoButton.setOnClickListener(v -> performUndo());
+
         loadList();
+    }
+
+    private void showUndoBar(String roommateName) {
+        undoMessage.setText("Deleted: " + roommateName);
+        undoBar.setVisibility(View.VISIBLE);
+
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        countDownTimer = new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                undoButton.setText("UNDO (" + (millisUntilFinished / 1000) + "s)");
+            }
+
+            @Override
+            public void onFinish() {
+                hideUndoBar();
+                pendingDeleteRoommate = null;
+            }
+        }.start();
+    }
+
+    private void hideUndoBar() {
+        undoBar.setVisibility(View.GONE);
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+    }
+
+    private void performUndo() {
+        if (pendingDeleteRoommate != null) {
+            db.roommateDao().insert(pendingDeleteRoommate);
+            pendingDeleteRoommate = null;
+            hideUndoBar();
+            loadList();
+        }
     }
 
     private void addRoommate(boolean closeAfterSave) {

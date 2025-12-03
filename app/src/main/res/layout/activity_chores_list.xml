@@ -116,6 +116,41 @@
     </LinearLayout>
 
 
+    <LinearLayout
+        android:id="@+id/undoBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E3F2FD"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="16dp"
+        android:visibility="gone"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/undoMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Swapped: Alice ↔ Bob"
+            android:textColor="#1565C0"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/undoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UNDO (10s)"
+            android:textColor="#0D47A1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/choresRecyclerView"
         android:layout_width="match_parent"
