@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="Add / Edit Chore"
+            android:text="@string/AddChore"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
@@ -26,7 +26,7 @@
             android:layout_marginBottom="12dp"/>
 
         <TextView
-            android:text="Chore"
+            android:text="@string/Chore"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -34,14 +34,14 @@
 
         <EditText
             android:id="@+id/inputChore"
-            android:hint="e.g. Take out trash"
+            android:hint="@string/example"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
         <TextView
-            android:text="Frequency"
+            android:text="@string/Frequency"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -54,7 +54,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Week 1 Assignment to Roommate"
+            android:text="@string/Assignment"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Due Date(s) in a Week"
+            android:text="@string/DueDate"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"

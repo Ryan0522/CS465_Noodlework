@@ -1,7 +1,20 @@
 <resources>
     <string name="app_name">Roomies</string>
+
     <string name="Home">Home</string>
     <string name="Schedule">Schedule</string>
     <string name="Reminders">Reminders</string>
     <string name="Settings">Settings</string>
+
+    <string name="AddChore">Add / Edit Chore</string>
+    <string name="Chore">Chore</string>
+    <string name="example">e.g. Take out trash</string>
+    <string name="Frequency">Frequency</string>
+    <string name="Assignment">Week 1 Assignment to Roommate</string>
+    <string name="DueDate">Due Date(s) in a Week</string>
+
+
+    <string name="Start">Start Chore Schedule</string>
+    <string name="Name">Developed by NoodleWorks</string>
+    <string name="LogoDesc">App logo</string>
 </resources>
