@@ -106,13 +106,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp">
 
-                <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="M" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="T" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="W" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="R" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="F" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="S" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Sun" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Mon" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Tue" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Wed" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Thu" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Fri" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:text="Sat" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <TextView
@@ -146,22 +146,22 @@
                 android:layout_marginBottom="16dp">
 
                 <Button
-                    android:id="@+id/continueButton"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Continue"
-                    android:backgroundTint="@android:color/holo_purple"
-                    android:textColor="@android:color/white"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
                     android:id="@+id/cancelButton"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="Cancel"
                     android:backgroundTint="@android:color/darker_gray"
+                    android:textColor="@android:color/white"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/continueButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Continue"
+                    android:backgroundTint="@android:color/holo_purple"
                     android:textColor="@android:color/white"/>
             </LinearLayout>
 
