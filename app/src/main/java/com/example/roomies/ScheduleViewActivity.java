@@ -16,7 +16,7 @@ import java.util.*;
 
 public class ScheduleViewActivity extends AppCompatActivity {
 
-    private Button prevWeekBtn, nextWeekBtn;
+    private ImageButton prevWeekBtn, nextWeekBtn;
     private TableLayout scheduleTable;
     private Spinner userSelector;
     private TextView remindersText, weekLabel;

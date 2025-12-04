@@ -6,6 +6,7 @@ import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.annotation.SuppressLint;
@@ -25,7 +26,7 @@ public class ChoresListActivity extends AppCompatActivity {
 
     private static final int SWAP_REQUEST_CODE = 100;
 
-    private Button prevWeekBtn, nextWeekBtn;
+    private ImageButton prevWeekBtn, nextWeekBtn;
     private RecyclerView recyclerView;
     private ChoreAdapter adapter;
     private TextView weekLabel;
