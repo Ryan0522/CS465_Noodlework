@@ -19,12 +19,12 @@ public class AddChoreActivity extends AppCompatActivity {
     private Spinner frequencySpinner, roommateSpinner;
     private LinearLayout daysLayout, undoBar;
     private ListView choreListView;
-    private Button saveBtn, saveAddAnotherBtn, cancelBtn;
+    private Button saveBtn;
     private TextView undoMessage, undoButton;
 
     private CountDownTimer countDownTimer;
     private ChoreEntity pendingDeleteChore;
-
+  
     private RoomiesDatabase db;
     private List<RoommateEntity> roommates = new ArrayList<>();
     private List<ChoreEntity> chores = new ArrayList<>();
@@ -35,14 +35,20 @@ public class AddChoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_chore);
 
+        ImageButton closeButton = findViewById(R.id.closeButton);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();  // closes the screen
+            }
+        });
+
         inputChore = findViewById(R.id.inputChore);
         frequencySpinner = findViewById(R.id.frequencySpinner);
         roommateSpinner = findViewById(R.id.roommateSpinner);
         choreListView = findViewById(R.id.choreList);
         daysLayout = findViewById(R.id.daysLayout);
         saveBtn = findViewById(R.id.saveButton);
-        saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
-        cancelBtn = findViewById(R.id.cancelButton);
 
         undoBar = findViewById(R.id.undoBar);
         undoMessage = findViewById(R.id.undoMessage);
@@ -70,8 +76,6 @@ public class AddChoreActivity extends AppCompatActivity {
 
         // Button actions
         saveBtn.setOnClickListener(v -> saveChore(true));
-        saveAddAnotherBtn.setOnClickListener(v -> saveChore(false));
-        cancelBtn.setOnClickListener(v -> finish());
 
         // IME Done key triggers save & close
         inputChore.setImeOptions(EditorInfo.IME_ACTION_DONE);

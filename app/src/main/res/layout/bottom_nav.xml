@@ -28,14 +28,14 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_home"
-            android:contentDescription="Home"
+            android:contentDescription="@string/Home"
             android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/navHomeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Home"
+            android:text="@string/Home"
             android:textColor="@color/black"
             android:textSize="12sp" />
     </LinearLayout>
@@ -58,14 +58,14 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_calendar"
-            android:contentDescription="Schedule"
+            android:contentDescription="@string/Schedule"
             android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/navScheduleLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Schedule"
+            android:text="@string/Schedule"
             android:textColor="@color/black"
             android:textSize="12sp" />
     </LinearLayout>
@@ -88,7 +88,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_reminder"
-            android:contentDescription="Reminders"
+            android:contentDescription="@string/Reminders"
             android:layout_marginBottom="4dp" />
 
         <TextView
@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tint="@null"
-            android:text="Reminders"
+            android:text="@string/Reminders"
             android:textColor="@color/black"
             android:textSize="12sp" />
     </LinearLayout>
@@ -119,14 +119,14 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_setting"
-            android:contentDescription="Settings"
+            android:contentDescription="@string/Settings"
             android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/navSettingsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settings"
+            android:text="@string/Settings"
             android:textColor="@color/black"
             android:textSize="12sp" />
     </LinearLayout>
