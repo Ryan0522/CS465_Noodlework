@@ -9,7 +9,7 @@ import java.util.List;
 
 @Dao
 public interface ReminderDao {
-    @Insert void insert(ReminderEntity reminder);
+    @Insert long insert(ReminderEntity reminder);
     @Delete void delete(ReminderEntity reminder);
 
     @Query("SELECT * FROM reminders WHERE choreId = :choreId")

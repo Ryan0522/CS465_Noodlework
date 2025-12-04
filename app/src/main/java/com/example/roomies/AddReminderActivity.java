@@ -2,8 +2,12 @@ package com.example.roomies;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import android.os.Build;
+import android.content.pm.PackageManager;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +30,12 @@ public class AddReminderActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+            }
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_reminder);
 
@@ -81,6 +91,8 @@ public class AddReminderActivity extends AppCompatActivity {
 
         saveBtn.setOnClickListener(v -> saveReminder());
         cancelBtn.setOnClickListener(v -> finish());
+        NotificationHelper.sendNotification(this, 999, "Test Reminder", "This is a test!");
+
     }
 
     private void loadExistingReminder() {
@@ -114,23 +126,47 @@ public class AddReminderActivity extends AppCompatActivity {
         int hour = timePicker.getHour();
         int minute = timePicker.getMinute();
 
-        LocalTime time = LocalTime.of(hour, minute);
-        String timeText = time.format(DateTimeFormatter.ofPattern("h:mm a"));
-
+        String timeText = String.format("%02d:%02d", hour, minute);
         String fullText = selectedDay + " " + timeText;
         if (!commentInput.getText().toString().trim().isEmpty()) {
             fullText += " — " + commentInput.getText().toString().trim();
         }
 
         if (editingReminder != null) {
+            ReminderScheduler.cancelReminder(this, editingReminder.id);
+
             editingReminder.timeText = fullText;
             db.reminderDao().update(editingReminder);
+
+            long triggerTime = calculateTriggerTime(fullText);
+            Log.d("ReminderTest", "Updating reminder id=" + editingReminder.id + " for triggerTime=" + triggerTime);
+            ReminderScheduler.scheduleReminder(this, editingReminder.id, chore.name, triggerTime);
+
             Toast.makeText(this, "Reminder updated!", Toast.LENGTH_SHORT).show();
+
         } else {
-            ReminderEntity reminder = new ReminderEntity(chore.id, fullText, false);
-            db.reminderDao().insert(reminder);
+            ReminderEntity reminder = new ReminderEntity(choreId, fullText, false);
+            long id = db.reminderDao().insert(reminder);
+            reminder.id = (int) id;
+            Log.d("ReminderDebug", "New reminder ID: " + reminder.id);
+
+            long triggerTime = calculateTriggerTime(fullText);
+            Log.d("ReminderDebug", "Scheduling reminder for triggerTime: " + triggerTime);
+
+            ReminderScheduler.scheduleReminder(this, reminder.id, chore.name, triggerTime);
+
+
             Toast.makeText(this, "Reminder saved!", Toast.LENGTH_SHORT).show();
         }
-        finish();
+
+        // finish(); // optional, keep for testing
     }
+
+    private long calculateTriggerTime(String timeText) {
+        // For testing, trigger 5 seconds from now
+        return System.currentTimeMillis() + 5000;
+    }
+
+
+
 }
