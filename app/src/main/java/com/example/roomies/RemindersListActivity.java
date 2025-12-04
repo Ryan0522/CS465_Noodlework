@@ -133,6 +133,7 @@ public class RemindersListActivity extends AppCompatActivity {
                     db.reminderDao().delete(r);
                     Toast.makeText(this, "Reminder deleted", Toast.LENGTH_SHORT).show();
                     loadReminders();
+                    SyncUtils.pushIfRoomLinked(this);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();    }

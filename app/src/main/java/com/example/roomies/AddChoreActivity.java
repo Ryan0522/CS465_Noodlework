@@ -92,6 +92,7 @@ public class AddChoreActivity extends AppCompatActivity {
                         pendingDeleteChore = selectedChore;
                         db.choreDao().delete(selectedChore);
                         loadChoreList();
+                        SyncUtils.pushIfRoomLinked(this);
                         showUndoBar(selectedChore.name);
                     })
                     .setNegativeButton("Cancel", null)
@@ -138,6 +139,8 @@ public class AddChoreActivity extends AppCompatActivity {
             pendingDeleteChore = null;
             hideUndoBar();
             loadChoreList();
+
+            SyncUtils.pushIfRoomLinked(this);
         }
     }
 
@@ -195,6 +198,7 @@ public class AddChoreActivity extends AppCompatActivity {
         // Insert new chore
         ChoreEntity newChore = new ChoreEntity(choreName, frequency, roommateId, dueDaysCsv);
         db.choreDao().insert(newChore);
+        SyncUtils.pushIfRoomLinked(this);
 
         // Hide keyboard
         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);

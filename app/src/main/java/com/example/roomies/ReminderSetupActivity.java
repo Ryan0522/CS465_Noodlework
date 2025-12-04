@@ -147,6 +147,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
             Toast.makeText(this, "Settings saved!", Toast.LENGTH_SHORT).show();
 
             startActivity(new Intent(this, ChoresListActivity.class));
+            SyncUtils.pushIfRoomLinked(this);
             finish();
         });
 
@@ -224,6 +225,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
         nameConfirmed = true;
         setGroupEnabled(yesNoGroup, true);
         updateContinueButtonState();
+        SyncUtils.pushIfRoomLinked(this);
     }
 
     // --- helper: validate whether Continue should be enabled ---

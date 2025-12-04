@@ -131,6 +131,7 @@ public class AddReminderActivity extends AppCompatActivity {
             db.reminderDao().insert(reminder);
             Toast.makeText(this, "Reminder saved!", Toast.LENGTH_SHORT).show();
         }
+        SyncUtils.pushIfRoomLinked(this);
         finish();
     }
 }

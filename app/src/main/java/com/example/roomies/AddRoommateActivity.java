@@ -73,6 +73,7 @@ public class AddRoommateActivity extends AppCompatActivity {
                         pendingDeleteRoommate = r;
                         db.roommateDao().delete(r);
                         loadList();
+                        SyncUtils.pushIfRoomLinked(this);
                         showUndoBar(r.name);
                     })
                     .setNegativeButton("Cancel", null)
@@ -121,6 +122,8 @@ public class AddRoommateActivity extends AppCompatActivity {
             pendingDeleteRoommate = null;
             hideUndoBar();
             loadList();
+
+            SyncUtils.pushIfRoomLinked(this);
         }
     }
 
@@ -137,6 +140,7 @@ public class AddRoommateActivity extends AppCompatActivity {
 
         RoommateEntity entity = new RoommateEntity(name);
         long id = db.roommateDao().insert(entity);
+        SyncUtils.pushIfRoomLinked(this);
 
         // Hide keyboard
         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
