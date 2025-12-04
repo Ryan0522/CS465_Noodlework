@@ -1,10 +1,85 @@
 package com.example.roomies;
 
+import android.annotation.SuppressLint;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 final class ReminderAutoGenerator {
+
+    @SuppressLint("NewApi")
+    public static long computeTriggerMillis(String dayLabel, String timeText) {
+        LocalTime time = parseTime(timeText);
+        LocalDate date = computeNextDate(dayLabel, time);
+        ZonedDateTime zdt = date.atTime(time).atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
+    }
+
+    @SuppressLint("NewApi")
+    private static LocalTime parseTime(String timeText) {
+        // Normalize formats
+        String t = timeText.toUpperCase().trim();
+
+        // Try: 6 PM
+        try {
+            java.time.format.DateTimeFormatter fmt =
+                    java.time.format.DateTimeFormatter.ofPattern("h a");
+            return LocalTime.parse(t, fmt);
+        } catch (Exception ignored) {}
+
+        // Try: 6:30 PM
+        try {
+            java.time.format.DateTimeFormatter fmt =
+                    java.time.format.DateTimeFormatter.ofPattern("h:mm a");
+            return LocalTime.parse(t, fmt);
+        } catch (Exception ignored) {}
+
+        // Fallback
+        return LocalTime.now();
+    }
+
+    @SuppressLint("NewApi")
+    private static LocalDate computeNextDate(String dayLabel, LocalTime time) {
+        LocalDate today = LocalDate.now();
+        dayLabel = dayLabel.trim().toLowerCase();
+
+        // Today / Tomorrow special cases
+        if (dayLabel.equals("today")) {
+            // If time already passed, push to tomorrow
+            if (time.isBefore(LocalTime.now())) {
+                return today.plusDays(1);
+            }
+            return today;
+        }
+
+        if (dayLabel.equals("tomorrow")) {
+            return today.plusDays(1);
+        }
+
+        // Otherwise: Monday, Tuesday, etc.
+        java.time.DayOfWeek target;
+
+        try {
+            target = java.time.DayOfWeek.valueOf(dayLabel.toUpperCase());
+        } catch (Exception e) {
+            // Bad label = assume tomorrow
+            return today.plusDays(1);
+        }
+
+        java.time.DayOfWeek todayDOW = today.getDayOfWeek();
+
+        int diff = target.getValue() - todayDOW.getValue();
+        if (diff < 0 || (diff == 0 && time.isBefore(LocalTime.now()))) {
+            diff += 7;
+        }
+
+        return today.plusDays(diff);
+    }
 
     private static final List<String> WEEK = Arrays.asList("Mon","Tue","Wed","Thu","Fri","Sat","Sun");
 
@@ -56,7 +131,10 @@ final class ReminderAutoGenerator {
             if (firstTime.isEmpty()) return out;
 
             String text = reminderDay + " " + firstTime;
-            out.add(new ReminderEntity(chore.id, text, true));
+
+            ReminderEntity entity = new ReminderEntity(chore.id, text, true);
+            entity.triggerAtMillis = ReminderAutoGenerator.computeTriggerMillis(reminderDay, firstTime);
+            out.add(entity);
         }
         return out;
     }

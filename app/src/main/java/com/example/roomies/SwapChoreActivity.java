@@ -178,6 +178,8 @@ public class SwapChoreActivity  extends AppCompatActivity{
         db.choreDao().update(c1);
         db.choreDao().update(c2);
 
+        SyncUtils.pushIfRoomLinked(this);
+
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_CHORE1_ID, c1.id);
         resultIntent.putExtra(EXTRA_CHORE2_ID, c2.id);

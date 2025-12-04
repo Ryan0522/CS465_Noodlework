@@ -256,15 +256,41 @@ public class AddReminderActivity extends AppCompatActivity {
             fullText += " — " + commentInput.getText().toString().trim();
         }
 
+        long triggerAt = computeTriggerMillisFromSelection(selectedDay, time);
+
         if (editingReminder != null) {
             editingReminder.timeText = fullText;
+            editingReminder.triggerAtMillis = triggerAt;
             db.reminderDao().update(editingReminder);
+            ReminderScheduler.scheduleReminder(this, editingReminder);
             Toast.makeText(this, "Reminder updated!", Toast.LENGTH_SHORT).show();
         } else {
             ReminderEntity reminder = new ReminderEntity(chore.id, fullText, false);
-            db.reminderDao().insert(reminder);
+            reminder.triggerAtMillis = triggerAt;
+            long newId = db.reminderDao().insert(reminder);
+            reminder.id = (int) newId;
+            ReminderScheduler.scheduleReminder(this, reminder);
             Toast.makeText(this, "Reminder saved!", Toast.LENGTH_SHORT).show();
         }
+        SyncUtils.pushIfRoomLinked(this);
         finish();
+    }
+
+    @SuppressLint("NewApi")
+    public long computeTriggerMillisFromSelection(String dayLabel, LocalTime time) {
+        java.time.LocalDate date = java.time.LocalDate.now();
+        if ("Tomorrow".equalsIgnoreCase(dayLabel)) {
+            date = date.plusDays(1);
+        }
+        if ("Today".equalsIgnoreCase(dayLabel)) {
+            if (time.isBefore(java.time.LocalTime.now())) {
+                date = date.plusDays(1);
+            }
+        }
+
+        java.time.ZonedDateTime zdt = date.atTime(time)
+                .atZone(java.time.ZoneId.systemDefault());
+
+        return zdt.toInstant().toEpochMilli();
     }
 }

@@ -97,4 +97,9 @@
             android:layout_marginTop="24dp" />
 
     </LinearLayout>
+
+    <include
+        android:id="@+id/undoBarInclude"
+        layout="@layout/include_undo_bar" />
+
 </LinearLayout>

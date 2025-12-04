@@ -20,9 +20,12 @@ public class ReminderEntity {
     public String timeText;  // e.g. "Saturday 6PM"
     public boolean isAuto;   // true = generated from settings
 
+    public long triggerAtMillis;
+
     public ReminderEntity(int choreId, String timeText, boolean isAuto) {
         this.choreId = choreId;
         this.timeText = timeText;
         this.isAuto = isAuto;
+        this.triggerAtMillis = 0L;
     }
 }

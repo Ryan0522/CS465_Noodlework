@@ -11,8 +11,11 @@ public class RoommateEntity {
 
     public String name; // Roommate's name
 
+    public boolean owned = false;
+
     // --- constructor ---
     public RoommateEntity(String name) {
         this.name = name;
+        this.owned = false;
     }
 }

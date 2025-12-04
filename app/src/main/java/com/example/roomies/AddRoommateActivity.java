@@ -3,6 +3,7 @@ package com.example.roomies;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +26,11 @@ public class AddRoommateActivity extends AppCompatActivity {
     private RoomiesDatabase db;
     private Button saveBtn;
 
+    private LinearLayout undoBar;
+    private TextView undoMessage, undoButton;
+    private CountDownTimer countDownTimer;
+    private RoommateEntity pendingDeleteRoommate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +48,9 @@ public class AddRoommateActivity extends AppCompatActivity {
         inputRoommate = findViewById(R.id.inputRoommate);
         listView = findViewById(R.id.roommateList);
         saveBtn = findViewById(R.id.saveButton);
+        undoBar = findViewById(R.id.undoBar);
+        undoMessage = findViewById(R.id.undoMessage);
+        undoButton = findViewById(R.id.undoButton);
 
         // Disable save until text present
         saveBtn.setEnabled(false);
@@ -59,19 +68,75 @@ public class AddRoommateActivity extends AppCompatActivity {
 
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
             RoommateEntity r = roommates.get(position);
+
+            // Protect all owned/linked roommates from deletion
+            if (r.owned) {
+                Toast.makeText(this,
+                        "You can't delete a roommate that is linked on a device.",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return true;
+            }
+
             new AlertDialog.Builder(this)
                     .setTitle("Delete roommate?")
                     .setMessage("Remove " + r.name + " from the list?")
                     .setPositiveButton("Delete", (d, w) -> {
+                        pendingDeleteRoommate = r;
                         db.roommateDao().delete(r);
                         loadList();
+                        SyncUtils.pushIfRoomLinked(this);
+                        showUndoBar(r.name);
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
             return true;
         });
 
+        undoButton.setOnClickListener(v -> performUndo());
+
         loadList();
+    }
+
+    private void showUndoBar(String roommateName) {
+        undoMessage.setText("Deleted: " + roommateName);
+        undoBar.setVisibility(View.VISIBLE);
+
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        countDownTimer = new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                undoButton.setText("UNDO (" + (millisUntilFinished / 1000) + "s)");
+            }
+
+            @Override
+            public void onFinish() {
+                hideUndoBar();
+                pendingDeleteRoommate = null;
+            }
+        }.start();
+    }
+
+    private void hideUndoBar() {
+        undoBar.setVisibility(View.GONE);
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+    }
+
+    private void performUndo() {
+        if (pendingDeleteRoommate != null) {
+            db.roommateDao().insert(pendingDeleteRoommate);
+            pendingDeleteRoommate = null;
+            hideUndoBar();
+            loadList();
+
+            SyncUtils.pushIfRoomLinked(this);
+        }
     }
 
     private void addRoommate(boolean closeAfterSave) {
@@ -87,6 +152,7 @@ public class AddRoommateActivity extends AppCompatActivity {
 
         RoommateEntity entity = new RoommateEntity(name);
         long id = db.roommateDao().insert(entity);
+        SyncUtils.pushIfRoomLinked(this);
 
         // Hide keyboard
         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
@@ -109,7 +175,13 @@ public class AddRoommateActivity extends AppCompatActivity {
     private void loadList() {
         roommates = db.roommateDao().getAll();
         List<String> names = new ArrayList<>();
-        for (RoommateEntity r : roommates) names.add(r.name);
+        for (RoommateEntity r : roommates) {
+            String label = r.name;
+            if (r.owned) {
+                label += " (linked)";
+            }
+            names.add(label);
+        }
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
         listView.setAdapter(adapter);
     }

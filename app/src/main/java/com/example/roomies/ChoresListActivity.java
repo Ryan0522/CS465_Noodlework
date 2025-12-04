@@ -162,6 +162,8 @@ public class ChoresListActivity extends AppCompatActivity {
 
                 db.choreDao().update(c1);
                 db.choreDao().update(c2);
+
+                SyncUtils.pushIfRoomLinked(this);
             }
 
             pendingChore1Id = -1;

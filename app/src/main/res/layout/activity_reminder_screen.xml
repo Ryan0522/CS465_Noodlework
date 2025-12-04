@@ -165,6 +165,29 @@
                     android:textColor="@android:color/white"/>
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tv_room_link_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Household JSON link:"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
+
+            <TextView
+                android:id="@+id/tv_room_link_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="(not linked)"
+                android:textIsSelectable="true"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp" />
+
+            <Button
+                android:id="@+id/btn_change_household"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change household" />
+
         </LinearLayout>
     </ScrollView>
 

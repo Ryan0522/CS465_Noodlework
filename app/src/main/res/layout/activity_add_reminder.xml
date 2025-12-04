@@ -263,4 +263,9 @@
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>
+
+    <include
+        android:id="@+id/undoBarInclude"
+        layout="@layout/include_undo_bar" />
+
 </ScrollView>

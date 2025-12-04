@@ -12,6 +12,14 @@ public interface ChoreSwapDao {
     @Query("SELECT * FROM chore_swaps WHERE weekOffset = :week")
     List<ChoreSwapEntity> getSwapsForWeek(int week);
 
+    // For syncing: get all swaps, regardless of week
+    @Query("SELECT * FROM chore_swaps")
+    List<ChoreSwapEntity> getAll();
+
+    // For syncing: delete ALL swaps
+    @Query("DELETE FROM chore_swaps")
+    void deleteAll();
+
     @Query("DELETE FROM chore_swaps WHERE weekOffset < :week")
     void deleteOldSwaps(int week);
 
