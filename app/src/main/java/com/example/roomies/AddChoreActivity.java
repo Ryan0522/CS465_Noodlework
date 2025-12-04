@@ -60,6 +60,34 @@ public class AddChoreActivity extends AppCompatActivity {
                 frequencies
         );
         frequencySpinner.setAdapter(freqAdapter);
+        frequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = frequencySpinner.getSelectedItem().toString();
+
+                // Automatically check / uncheck all days based on frequency
+                if (selected.equals("Daily")) {
+                    // Check all day checkboxes
+                    for (int i = 0; i < daysLayout.getChildCount(); i++) {
+                        View v = daysLayout.getChildAt(i);
+                        if (v instanceof CheckBox) {
+                            ((CheckBox) v).setChecked(true);
+                        }
+                    }
+                } else {
+                    // Uncheck all if switching away from Daily
+                    for (int i = 0; i < daysLayout.getChildCount(); i++) {
+                        View v = daysLayout.getChildAt(i);
+                        if (v instanceof CheckBox) {
+                            ((CheckBox) v).setChecked(false);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         // load roommates and chores
         loadRoommates();
