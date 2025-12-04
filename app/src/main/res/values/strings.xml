@@ -17,4 +17,11 @@
     <string name="Start">Start Chore Schedule</string>
     <string name="Name">Developed by NoodleWorks</string>
     <string name="LogoDesc">App logo</string>
+
+    <string name="MyReminders">My Reminders</string>
+
+    <string name="WeeklyChoreSchedule">Weekly Chore Schedule</string>
+    <string name="PrevWeek">Previous week</string>
+    <string name="NextWeek">Next week</string>
+
 </resources>
