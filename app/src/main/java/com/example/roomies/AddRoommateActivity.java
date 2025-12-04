@@ -66,6 +66,16 @@ public class AddRoommateActivity extends AppCompatActivity {
 
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
             RoommateEntity r = roommates.get(position);
+
+            // Protect all owned/linked roommates from deletion
+            if (r.owned) {
+                Toast.makeText(this,
+                        "You can't delete a roommate that is linked on a device.",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return true;
+            }
+
             new AlertDialog.Builder(this)
                     .setTitle("Delete roommate?")
                     .setMessage("Remove " + r.name + " from the list?")
@@ -163,7 +173,13 @@ public class AddRoommateActivity extends AppCompatActivity {
     private void loadList() {
         roommates = db.roommateDao().getAll();
         List<String> names = new ArrayList<>();
-        for (RoommateEntity r : roommates) names.add(r.name);
+        for (RoommateEntity r : roommates) {
+            String label = r.name;
+            if (r.owned) {
+                label += " (linked)";
+            }
+            names.add(label);
+        }
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
         listView.setAdapter(adapter);
     }

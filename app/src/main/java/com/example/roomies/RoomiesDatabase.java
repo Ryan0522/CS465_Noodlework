@@ -10,7 +10,7 @@ import androidx.room.RoomDatabase;
         ChoreEntity.class,
         ChoreSwapEntity.class,
         ReminderEntity.class
-}, version = 4)
+}, version = 3)
 public abstract class RoomiesDatabase extends RoomDatabase {
 
     public abstract RoommateDao roommateDao();

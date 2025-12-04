@@ -1,30 +1,39 @@
 package com.example.roomies;
 
-import android.app.AlertDialog;
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQ_CREATE_ROOM_FILE = 1001;
     private static final int REQ_JOIN_ROOM_FILE   = 1002;
 
+    private static final String CHANNEL_REMINDERS = "roomies_reminders";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        createReminderChannel();
+
         // 1) Pull latest data from shared file if we’re linked
         SyncUtils.pullIfRoomLinkedOnStartup(this);
+        rescheduleAllReminders();
 
-        Button startBtn = findViewById(R.id.startButton);
-        startBtn.setOnClickListener(v -> onStartClicked());
-
-        // 2) If we already have a current user, skip splash & go straight to chores
+        // 2) If we already have a current user, go straight to the chores list
         int userId = UserManager.getCurrentUser(this);
         if (userId != -1) {
             Intent intent = new Intent(this, ChoresListActivity.class);
@@ -32,54 +41,46 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-    }
 
-    private void onStartClicked() {
-        int userId = UserManager.getCurrentUser(this);
+        // 3) New user: show explicit Create / Join buttons
+        Button createBtn = findViewById(R.id.btnCreateRoom);
+        Button joinBtn = findViewById(R.id.btnJoinRoom);
 
-        if (userId != -1) {
-            // Existing user: just go to chores list
-            Intent intent = new Intent(this, ChoresListActivity.class);
-            startActivity(intent);
-            return;
+        createBtn.setOnClickListener(v -> pickLocationToCreateRoomFile());
+        joinBtn.setOnClickListener(v -> pickExistingRoomFileToJoin());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        1001
+                );
+            }
         }
-
-        // New user: ask if they want to create or join a shared room
-        showRoomChoiceDialog();
     }
 
-    private void showRoomChoiceDialog() {
-        CharSequence[] options = new CharSequence[] {
-                "Create new shared room",
-                "Join existing shared room",
-                "Skip (this device only)"
-        };
-
-        new AlertDialog.Builder(this)
-                .setTitle("Create or Join Room")
-                .setItems(options, (dialog, which) -> {
-                    switch (which) {
-                        case 0:
-                            pickLocationToCreateRoomFile();
-                            break;
-                        case 1:
-                            pickExistingRoomFileToJoin();
-                            break;
-                        case 2:
-                        default:
-                            // No sync: go into normal onboarding (ReminderSetup)
-                            startActivity(new Intent(this, ReminderSetupActivity.class));
-                            break;
-                    }
-                })
-                .show();
+    private void createReminderChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_REMINDERS,
+                    "Chore Reminders",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Notification for upcoming chores.");
+            NotificationManager nm = getSystemService(NotificationManager.class);
+            nm.createNotificationChannel(channel);
+        }
     }
 
     private void pickLocationToCreateRoomFile() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/octet-stream"); // or "application/json"
-        intent.putExtra(Intent.EXTRA_TITLE, "roomies-room.db");
+        intent.setType("application/json"); // or "application/json"
+        intent.putExtra(Intent.EXTRA_TITLE, "roomies-test.json");
         startActivityForResult(intent, REQ_CREATE_ROOM_FILE);
     }
 
@@ -109,17 +110,17 @@ public class MainActivity extends AppCompatActivity {
             // Joining an existing shared DB
             SyncUtils.linkAndPullExistingRoomFile(this, uri);
 
-            // After pulling, we should now see the existing roommates/chores.
-            // If a current user is already stored, jump to chores.
-            int userId = UserManager.getCurrentUser(this);
-            if (userId != -1) {
-                Intent intent = new Intent(this, ChoresListActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-            } else {
-                // No current user yet: go through ReminderSetup to pick yourself.
-                startActivity(new Intent(this, ReminderSetupActivity.class));
+            startActivity(new Intent(this, ReminderSetupActivity.class));
+        }
+    }
+
+    private void rescheduleAllReminders() {
+        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
+        List<ReminderEntity> all = db.reminderDao().getAll();
+        long now = System.currentTimeMillis();
+        for (ReminderEntity r : all) {
+            if (r.triggerAtMillis > now) {
+                ReminderScheduler.scheduleReminder(this, r);
             }
         }
     }

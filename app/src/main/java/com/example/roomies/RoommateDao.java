@@ -21,4 +21,18 @@ public interface RoommateDao {
 
     @Query("SELECT * FROM roommates WHERE name = :name LIMIT 1")
     RoommateEntity getRoommateByName(String name);
+
+    // --- NEW: owned/linked helpers ---
+
+    // Mark a roommate as owned (linked on at least one device)
+    @Query("UPDATE roommates SET owned = 1 WHERE id = :id")
+    void markOwned(int id);
+
+    // Clear owned flag if needed (we’ll likely use this in step 6)
+    @Query("UPDATE roommates SET owned = 0 WHERE id = :id")
+    void clearOwned(int id);
+
+    // For debugging or display: get all owned roommates
+    @Query("SELECT * FROM roommates WHERE owned = 1")
+    List<RoommateEntity> getOwnedRoommates();
 }

@@ -39,6 +39,7 @@
         <activity
             android:name=".AddReminderActivity"
             android:exported="false"/>
+        <receiver android:name=".ReminderAlarmReceiver" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -49,5 +50,8 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        tools:targetApi="33" />
 
 </manifest>

@@ -23,4 +23,7 @@ public interface ChoreDao {
 
     @Query("SELECT * FROM chores WHERE roommateId = :roommateId")
     List<ChoreEntity> getByRoommate(int roommateId);
+
+    @Query("SELECT * FROM chores WHERE id = :id")
+    List<ChoreEntity> getById(int id);
 }

@@ -125,6 +125,7 @@ public class CloudSyncManager {
             JSONObject o = new JSONObject();
             o.put("id", r.id);
             o.put("name", r.name);
+            o.put("owned", r.owned);
             roommatesArr.put(o);
         }
         root.put("roommates", roommatesArr);
@@ -152,6 +153,7 @@ public class CloudSyncManager {
             o.put("choreId", r.choreId);
             o.put("timeText", r.timeText);
             o.put("isAuto", r.isAuto);
+            o.put("triggerAtMillis", r.triggerAtMillis);
             remsArr.put(o);
         }
         root.put("reminders", remsArr);
@@ -198,6 +200,7 @@ public class CloudSyncManager {
                 JSONObject o = roommatesArr.getJSONObject(i);
                 RoommateEntity r = new RoommateEntity(o.optString("name", ""));
                 r.id = o.optInt("id", 0);
+                r.owned = o.optBoolean("owned", false);
                 db.roommateDao().insert(r);
             }
         }
@@ -243,6 +246,7 @@ public class CloudSyncManager {
                         o.optBoolean("isAuto", false)
                 );
                 r.id = o.optInt("id", 0);
+                r.triggerAtMillis = o.optLong("triggerAtMillis", 0L);
                 db.reminderDao().insert(r);
             }
         }

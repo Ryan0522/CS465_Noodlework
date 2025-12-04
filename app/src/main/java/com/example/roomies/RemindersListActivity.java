@@ -66,9 +66,16 @@ public class RemindersListActivity extends AppCompatActivity {
                 if (!autoDays.isEmpty() && !autoTimes.isEmpty()) {
                     String[] days = autoDays.split(",");
                     String[] times = autoTimes.split(",");
-                    String autoText = days[0].trim() + " " + times[0].trim();
+
+                    String dayLabel = days[0].trim();
+                    String timeLabel = times[0].trim();
+                    String autoText = dayLabel + " " + timeLabel;
                     ReminderEntity autoR = new ReminderEntity(chore.id, autoText, true);
-                    db.reminderDao().insert(autoR);
+                    autoR.triggerAtMillis = ReminderAutoGenerator.computeTriggerMillis(dayLabel, timeLabel);
+                    long newId = db.reminderDao().insert(autoR);
+                    autoR.id = (int) newId;
+
+                    ReminderScheduler.scheduleReminder(this, autoR);
                     reminders = db.reminderDao().getByChore(chore.id);
                 }
             }

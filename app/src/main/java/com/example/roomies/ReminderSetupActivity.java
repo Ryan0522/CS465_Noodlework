@@ -1,19 +1,26 @@
 package com.example.roomies;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.*;
+import android.app.Activity;
+import android.net.Uri;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReminderSetupActivity extends AppCompatActivity {
 
+    private static final int REQ_CHANGE_HOUSEHOLD = 2001;
+    private TextView tvRoomLinkValue;
     private EditText inputName;
-    private Button confirmNameButton, continueButton, cancelButton;
+    private Button confirmNameButton, continueButton, cancelButton, btnChangeHousehold;
     private RadioGroup yesNoGroup;
     private LinearLayout daysLayout, timesLayout;
     private boolean nameConfirmed = false;
@@ -40,6 +47,18 @@ public class ReminderSetupActivity extends AppCompatActivity {
         timesLayout = findViewById(R.id.timesLayout);
         continueButton = findViewById(R.id.continueButton);
         cancelButton = findViewById(R.id.cancelButton);
+        btnChangeHousehold = findViewById(R.id.btn_change_household);
+        tvRoomLinkValue = findViewById(R.id.tv_room_link_value);
+
+        // Show current link (Uri as string)
+        String currentLink = SyncUtils.getRoomFileUri(this);
+        if (currentLink == null || currentLink.isEmpty()) {
+            tvRoomLinkValue.setText("(not linked)");
+        } else {
+            tvRoomLinkValue.setText(currentLink);
+        }
+
+        btnChangeHousehold.setOnClickListener(v -> onChangeHouseholdClicked());
 
         // --- access database ---
         db = RoomiesDatabase.getDatabase(this);
@@ -123,7 +142,9 @@ public class ReminderSetupActivity extends AppCompatActivity {
                             c, selectedDays, selectedTimes
                     );
                     for (ReminderEntity g : generated) {
-                        db.reminderDao().insert(g);
+                        long newId = db.reminderDao().insert(g);
+                        g.id = (int) newId;
+                        ReminderScheduler.scheduleReminder(this, g);
                     }
                 }
 
@@ -199,6 +220,61 @@ public class ReminderSetupActivity extends AppCompatActivity {
         updateContinueButtonState();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            return;
+        }
+
+        if (requestCode == REQ_CHANGE_HOUSEHOLD) {
+            Uri newUri = data.getData();
+            if (newUri != null) {
+                handleHouseholdSwitch(newUri);
+            }
+        }
+    }
+
+    private void handleHouseholdSwitch(Uri newUri) {
+        RoomiesDatabase db = RoomiesDatabase.getDatabase(this);
+        RoommateDao roommateDao = db.roommateDao();
+        // 1) Remove myself from the current household list
+        int currentUserId = UserManager.getCurrentUser(this);
+        if (currentUserId != -1) {
+            RoommateEntity me = roommateDao.getById(currentUserId);
+            if (me != null) {
+                // This is a deliberate leave, so we allow deletion even if owned
+                roommateDao.delete(me);
+            }
+
+            // Clear local mapping
+            UserManager.setCurrentUser(this, -1);
+        }
+
+        // 2) Push updated roommate list to the OLD household file
+        //    (we have not changed the stored Uri yet)
+        SyncUtils.pushIfRoomLinked(this);
+
+        // 3) Now link to the new household file and pull its data
+        SyncUtils.linkAndPullExistingRoomFile(this, newUri);
+
+        // 4) Update the displayed link
+        String newLinkString = SyncUtils.getRoomFileUri(this);
+        if (newLinkString == null || newLinkString.isEmpty()) {
+            tvRoomLinkValue.setText("(not linked)");
+        } else {
+            tvRoomLinkValue.setText(newLinkString);
+        }
+
+        // 5) Reset the UI so user can pick their name in the new household
+        //    (this is simplest: restart this activity fresh)
+        Intent intent = new Intent(this, ReminderSetupActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     // --- confirm name logic ---
     private void handleNameConfirm() {
         String name = inputName.getText().toString().trim();
@@ -218,6 +294,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
             currentUserId = inserted.id;
             Toast.makeText(this, "New roommate added: " + name, Toast.LENGTH_SHORT).show();
         }
+        roommateDao.markOwned(currentUserId);
 
         UserManager.setCurrentUser(this, currentUserId);
         inputName.setEnabled(false);
@@ -226,6 +303,22 @@ public class ReminderSetupActivity extends AppCompatActivity {
         setGroupEnabled(yesNoGroup, true);
         updateContinueButtonState();
         SyncUtils.pushIfRoomLinked(this);
+    }
+
+    private void onChangeHouseholdClicked() {
+        new AlertDialog.Builder(this)
+                .setTitle("Change household")
+                .setMessage("This will remove you from the current household and join a different one. Continue?")
+                .setPositiveButton("Yes", (d, w) -> openNewHouseholdPicker())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void openNewHouseholdPicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        startActivityForResult(intent, REQ_CHANGE_HOUSEHOLD);
     }
 
     // --- helper: validate whether Continue should be enabled ---

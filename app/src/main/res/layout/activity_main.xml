@@ -35,11 +35,16 @@
         android:layout_marginBottom="48dp" />
 
     <Button
-        android:id="@+id/startButton"
+        android:id="@+id/btnCreateRoom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@android:color/holo_purple"
-        android:text="Create / Join a Chores Schedule"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white" />
+        android:text="Create household"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnJoinRoom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Join household" />
+
 </LinearLayout>

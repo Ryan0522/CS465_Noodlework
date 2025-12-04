@@ -9,11 +9,14 @@ import java.util.List;
 
 @Dao
 public interface ReminderDao {
-    @Insert void insert(ReminderEntity reminder);
+    @Insert long insert(ReminderEntity reminder);
     @Delete void delete(ReminderEntity reminder);
 
     @Query("SELECT * FROM reminders WHERE choreId = :choreId")
     List<ReminderEntity> getByChore(int choreId);
+
+    @Query("SELECT * FROM reminders WHERE id = :id LIMIT 1")
+    List<ReminderEntity> getById(int id);
 
     @Query("SELECT * FROM reminders")
     List<ReminderEntity> getAll();
