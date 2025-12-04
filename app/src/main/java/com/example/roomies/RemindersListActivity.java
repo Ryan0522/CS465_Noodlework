@@ -1,6 +1,7 @@
 package com.example.roomies;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -108,11 +109,26 @@ public class RemindersListActivity extends AppCompatActivity {
                 }
             }
 
-            // Add Reminder button
             Button addBtn = new Button(this);
             addBtn.setText("+ Add Reminder");
-            addBtn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.nav_selected));
-            addBtn.setTextColor(ContextCompat.getColor(this, R.color.white));
+            addBtn.setAllCaps(false);
+            addBtn.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            addBtn.setTextSize(16);
+            addBtn.setPadding(32, 24, 32, 24);
+
+            GradientDrawable shape = new GradientDrawable();
+            shape.setShape(GradientDrawable.RECTANGLE);
+            shape.setColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark));
+            shape.setCornerRadius(999);
+            addBtn.setBackground(shape);
+
+            LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            btnParams.setMargins(0, 12, 0, 16);
+            addBtn.setLayoutParams(btnParams);
+
             addBtn.setOnClickListener(v -> openAddReminder(chore.id));
             remindersContainer.addView(addBtn);
 
