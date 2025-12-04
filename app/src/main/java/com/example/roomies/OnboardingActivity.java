@@ -3,6 +3,7 @@ package com.example.roomies;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OnBoardingActivity extends AppCompatActivity {
+public class OnboardingActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private Button btnNext, btnSkip;
@@ -72,13 +73,11 @@ public class OnBoardingActivity extends AppCompatActivity {
 
     private void finishOnboarding() {
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
-        prefs.edit().putBoolean("first_run", false).apply();  // ← 重要！
-
+        prefs.edit().putBoolean("first_run", false).apply();
         goToMain();
     }
 
     private void goToMain() {
-        startActivity(new Intent(OnBoardingActivity.this, MainActivity.class));
         finish();
     }
 
@@ -86,8 +85,8 @@ public class OnBoardingActivity extends AppCompatActivity {
         List<OnboardingPage> list = new ArrayList<>();
 
         list.add(new OnboardingPage(
-                "Welcome!",
-                "Manage chores easily with a clean, simple interface.",
+                "Welcome to Roomies!",
+                "View chores easily with a clean, simple interface.",
                 R.drawable.onboard1
         ));
 
@@ -99,7 +98,7 @@ public class OnBoardingActivity extends AppCompatActivity {
 
         list.add(new OnboardingPage(
                 "Stay Organized",
-                "View weekly schedules and never miss a task!",
+                "Set personalized reminders and never miss a task!",
                 R.drawable.onboard3
         ));
 
