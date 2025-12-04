@@ -13,13 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Roomies">
         <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
+        <activity
             android:name=".ScheduleViewActivity"
             android:exported="false" />
         <activity
             android:name=".SwapChoreActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AddRoommateActivity"
             android:exported="false" />
         <activity
             android:name=".AddChoreActivity"
@@ -31,14 +31,11 @@
             android:name=".ReminderSetupActivity"
             android:exported="false" />
         <activity
-            android:name=".SwapChoreActivity"
+            android:name=".RemindersListActivity"
             android:exported="false" />
         <activity
-            android:name=".RemindersListActivity"
-            android:exported="false"/>
-        <activity
             android:name=".AddReminderActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <receiver android:name=".ReminderAlarmReceiver" />
         <activity
             android:name=".MainActivity"

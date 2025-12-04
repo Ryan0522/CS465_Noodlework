@@ -6,9 +6,10 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.view.View;
 import android.widget.*;
+import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class AddRoommateActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private List<RoommateEntity> roommates = new ArrayList<>();
     private RoomiesDatabase db;
-    private Button saveBtn, saveAddAnotherBtn, cancelBtn;
+    private Button saveBtn;
 
     private LinearLayout undoBar;
     private TextView undoMessage, undoButton;
@@ -35,34 +36,35 @@ public class AddRoommateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_roomate);
 
+        ImageButton closeButton = findViewById(R.id.closeButtonRoommates);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         db = RoomiesDatabase.getDatabase(this);
         inputRoommate = findViewById(R.id.inputRoommate);
         listView = findViewById(R.id.roommateList);
         saveBtn = findViewById(R.id.saveButton);
-        saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
-        cancelBtn = findViewById(R.id.cancelButton);
-
         undoBar = findViewById(R.id.undoBar);
         undoMessage = findViewById(R.id.undoMessage);
         undoButton = findViewById(R.id.undoButton);
 
         // Disable save until text present
         saveBtn.setEnabled(false);
-        saveAddAnotherBtn.setEnabled(false);
 
         inputRoommate.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
             @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
                 boolean hasText = s.toString().trim().length() > 0;
                 saveBtn.setEnabled(hasText);
-                saveAddAnotherBtn.setEnabled(hasText);
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
         saveBtn.setOnClickListener(v -> addRoommate(true));
-        saveAddAnotherBtn.setOnClickListener(v -> addRoommate(false));
-        cancelBtn.setOnClickListener(v -> finish());;
 
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
             RoommateEntity r = roommates.get(position);

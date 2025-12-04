@@ -19,6 +19,7 @@ public class AddReminderActivity extends AppCompatActivity {
     private TimePicker timePicker;
     private Button saveBtn, cancelBtn;
     private Button todayBtn, tomorrowBtn, b8am, b3pm, b6pm, b9pm;
+    private Button btnMon, btnTue, btnWed, btnThu, btnFri, btnSat, btnSun;
 
     private int choreId;
     private int reminderId = -1;
@@ -46,6 +47,13 @@ public class AddReminderActivity extends AppCompatActivity {
 
         todayBtn = findViewById(R.id.btnToday);
         tomorrowBtn = findViewById(R.id.btnTomorrow);
+        btnMon = findViewById(R.id.btnMon);
+        btnTue = findViewById(R.id.btnTue);
+        btnWed = findViewById(R.id.btnWed);
+        btnThu = findViewById(R.id.btnThu);
+        btnFri = findViewById(R.id.btnFri);
+        btnSat = findViewById(R.id.btnSat);
+        btnSun = findViewById(R.id.btnSun);
         b8am = findViewById(R.id.btn8am);
         b3pm = findViewById(R.id.btn3pm);
         b6pm = findViewById(R.id.btn6pm);
@@ -95,13 +103,139 @@ public class AddReminderActivity extends AppCompatActivity {
     }
 
     private void setupQuickButtons() {
-        todayBtn.setOnClickListener(v -> selectedDay = "Today");
-        tomorrowBtn.setOnClickListener(v -> selectedDay = "Tomorrow");
+        todayBtn.setOnClickListener(v -> {
+            selectedDay = "Today";
+            updateDayButtonStates();
+        });
+        tomorrowBtn.setOnClickListener(v -> {
+            selectedDay = "Tomorrow";
+            updateDayButtonStates();
+        });
+
+        btnMon.setOnClickListener(v -> {
+            selectedDay = "Mon";
+            updateDayButtonStates();
+        });
+        btnTue.setOnClickListener(v -> {
+            selectedDay = "Tue";
+            updateDayButtonStates();
+        });
+        btnWed.setOnClickListener(v -> {
+            selectedDay = "Wed";
+            updateDayButtonStates();
+        });
+        btnThu.setOnClickListener(v -> {
+            selectedDay = "Thu";
+            updateDayButtonStates();
+        });
+        btnFri.setOnClickListener(v -> {
+            selectedDay = "Fri";
+            updateDayButtonStates();
+        });
+        btnSat.setOnClickListener(v -> {
+            selectedDay = "Sat";
+            updateDayButtonStates();
+        });
+        btnSun.setOnClickListener(v -> {
+            selectedDay = "Sun";
+            updateDayButtonStates();
+        });
 
         b8am.setOnClickListener(v -> setTime(8, 0));
         b3pm.setOnClickListener(v -> setTime(15, 0));
         b6pm.setOnClickListener(v -> setTime(18, 0));
         b9pm.setOnClickListener(v -> setTime(21, 0));
+
+        updateDayButtonStates();
+    }
+
+    private void updateDayButtonStates() {
+        // Reset all buttons to default state
+        resetButtonState(todayBtn);
+        resetButtonState(tomorrowBtn);
+        resetButtonState(btnMon);
+        resetButtonState(btnTue);
+        resetButtonState(btnWed);
+        resetButtonState(btnThu);
+        resetButtonState(btnFri);
+        resetButtonState(btnSat);
+        resetButtonState(btnSun);
+
+        // Calculate which day of week is selected
+        String targetDay = selectedDay;
+        if (selectedDay.equals("Today")) {
+            targetDay = getTodayDayOfWeek();
+        } else if (selectedDay.equals("Tomorrow")) {
+            targetDay = getTomorrowDayOfWeek();
+        }
+
+        // Highlight selected button
+        Button selectedBtn = null;
+        switch (selectedDay) {
+            case "Today": selectedBtn = todayBtn; break;
+            case "Tomorrow": selectedBtn = tomorrowBtn; break;
+            case "Mon": selectedBtn = btnMon; break;
+            case "Tue": selectedBtn = btnTue; break;
+            case "Wed": selectedBtn = btnWed; break;
+            case "Thu": selectedBtn = btnThu; break;
+            case "Fri": selectedBtn = btnFri; break;
+            case "Sat": selectedBtn = btnSat; break;
+            case "Sun": selectedBtn = btnSun; break;
+        }
+
+        if (selectedBtn != null) {
+            selectedBtn.setAlpha(0.4f);
+        }
+
+        // Also highlight corresponding weekday button
+        Button weekdayBtn = null;
+        switch (targetDay) {
+            case "Mon": weekdayBtn = btnMon; break;
+            case "Tue": weekdayBtn = btnTue; break;
+            case "Wed": weekdayBtn = btnWed; break;
+            case "Thu": weekdayBtn = btnThu; break;
+            case "Fri": weekdayBtn = btnFri; break;
+            case "Sat": weekdayBtn = btnSat; break;
+            case "Sun": weekdayBtn = btnSun; break;
+        }
+
+        if (weekdayBtn != null) {
+            weekdayBtn.setAlpha(0.4f);
+        }
+    }
+
+    private void resetButtonState(Button btn) {
+        btn.setAlpha(1.0f);
+    }
+
+    @SuppressLint("NewApi")
+    private String getTodayDayOfWeek() {
+        LocalDate today = LocalDate.now();
+        switch (today.getDayOfWeek()) {
+            case MONDAY: return "Mon";
+            case TUESDAY: return "Tue";
+            case WEDNESDAY: return "Wed";
+            case THURSDAY: return "Thu";
+            case FRIDAY: return "Fri";
+            case SATURDAY: return "Sat";
+            case SUNDAY: return "Sun";
+            default: return "Mon";
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private String getTomorrowDayOfWeek() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        switch (tomorrow.getDayOfWeek()) {
+            case MONDAY: return "Mon";
+            case TUESDAY: return "Tue";
+            case WEDNESDAY: return "Wed";
+            case THURSDAY: return "Thu";
+            case FRIDAY: return "Fri";
+            case SATURDAY: return "Sat";
+            case SUNDAY: return "Sun";
+            default: return "Mon";
+        }
     }
 
     private void setTime(int hour, int minute) {

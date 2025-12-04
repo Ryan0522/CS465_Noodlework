@@ -141,6 +141,84 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btnSun"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Sun"
+                android:textSize="14sp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnMon"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Mon"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnTue"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Tue"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnWed"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Wed"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnThu"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Thu"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnFri"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Fri"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+            <Button
+                android:id="@+id/btnSat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:text="Sat"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+        </LinearLayout>
+
         <TimePicker
             android:id="@+id/timePicker"
             android:layout_width="wrap_content"
@@ -185,4 +263,9 @@
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>
+
+    <include
+        android:id="@+id/undoBarInclude"
+        layout="@layout/include_undo_bar" />
+
 </ScrollView>

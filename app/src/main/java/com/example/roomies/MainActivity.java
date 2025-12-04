@@ -15,6 +15,9 @@ import androidx.core.app.ActivityCompat;
 
 import java.util.List;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQ_CREATE_ROOM_FILE = 1001;
@@ -25,6 +28,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        Log.d("INFO","Entrance");
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean isFirstRun = prefs.getBoolean("first_run", true);
+
+        if (isFirstRun) {
+            Intent intent = new Intent(this, OnboardingActivity.class);
+            startActivity(intent);
+        }
+
         setContentView(R.layout.activity_main);
 
         createReminderChannel();
