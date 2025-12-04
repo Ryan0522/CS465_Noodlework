@@ -1,6 +1,8 @@
 package com.example.roomies;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.widget.*;
 
 import androidx.appcompat.app.AlertDialog;
@@ -16,6 +18,11 @@ public class SwapChoreActivity  extends AppCompatActivity{
     private RoomiesDatabase db;
     private List<ChoreEntity> chores;
     private List<RoommateEntity> roommates;
+
+    public static final String EXTRA_CHORE1_ID = "chore1_id";
+    public static final String EXTRA_CHORE2_ID = "chore2_id";
+    public static final String EXTRA_SWAP_NAME1 = "swap_name1";
+    public static final String EXTRA_SWAP_NAME2 = "swap_name2";
 
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
@@ -43,11 +50,25 @@ public class SwapChoreActivity  extends AppCompatActivity{
             return;
         }
 
+        List<ChoreSwapEntity> currentSwaps = db.choreSwapDao().getSwapsForWeek(0);
+
         List<String> choreNames = new ArrayList<>();
         for (ChoreEntity c : chores) {
+            int assignedRoommateId = c.roommateId;
+
+            for (ChoreSwapEntity swap : currentSwaps) {
+                if (swap.chore1Id == c.id) {
+                    ChoreEntity other = findChoreById(swap.chore2Id);
+                    if (other != null) assignedRoommateId = other.roommateId;
+                } else if (swap.chore2Id == c.id) {
+                    ChoreEntity other = findChoreById(swap.chore1Id);
+                    if (other != null) assignedRoommateId = other.roommateId;
+                }
+            }
+
             String assigned = "(Unassigned)";
             for (RoommateEntity r : roommates) {
-                if (r.id == c.roommateId) {
+                if (r.id == assignedRoommateId) {
                     assigned = r.name;
                     break;
                 }
@@ -63,6 +84,13 @@ public class SwapChoreActivity  extends AppCompatActivity{
         chore2Spinner.setAdapter(adapter);
     }
 
+    private ChoreEntity findChoreById(int id) {
+        for (ChoreEntity c : chores) {
+            if (c.id == id) return c;
+        }
+        return null;
+    }
+
     private void confirmSwap() {
         int index1 = chore1Spinner.getSelectedItemPosition();
         int index2 = chore2Spinner.getSelectedItemPosition();
@@ -75,8 +103,31 @@ public class SwapChoreActivity  extends AppCompatActivity{
         ChoreEntity c1 = chores.get(index1);
         ChoreEntity c2 = chores.get(index2);
 
-        RoommateEntity r1 = findRoommateById(c1.roommateId);
-        RoommateEntity r2 = findRoommateById(c2.roommateId);
+        List<ChoreSwapEntity> currentSwaps = db.choreSwapDao().getSwapsForWeek(0);
+
+        int assignedId1 = c1.roommateId;
+        int assignedId2 = c2.roommateId;
+
+        for (ChoreSwapEntity swap : currentSwaps) {
+            if (swap.chore1Id == c1.id) {
+                ChoreEntity other = findChoreById(swap.chore2Id);
+                if (other != null) assignedId1 = other.roommateId;
+            } else if (swap.chore2Id == c1.id) {
+                ChoreEntity other = findChoreById(swap.chore1Id);
+                if (other != null) assignedId1 = other.roommateId;
+            }
+
+            if (swap.chore1Id == c2.id) {
+                ChoreEntity other = findChoreById(swap.chore2Id);
+                if (other != null) assignedId2 = other.roommateId;
+            } else if (swap.chore2Id == c2.id) {
+                ChoreEntity other = findChoreById(swap.chore1Id);
+                if (other != null) assignedId2 = other.roommateId;
+            }
+        }
+
+        RoommateEntity r1 = findRoommateById(assignedId1);
+        RoommateEntity r2 = findRoommateById(assignedId2);
 
         if (r1 == null || r2 == null) {
             Toast.makeText(this, "Roommate assignment missing.", Toast.LENGTH_SHORT).show();
@@ -111,18 +162,28 @@ public class SwapChoreActivity  extends AppCompatActivity{
     }
 
     private void performSwap(ChoreEntity c1, ChoreEntity c2, RoommateEntity r1, RoommateEntity r2) {
-        int currentWeekOffset = 0;
+        List<ChoreSwapEntity> currentSwaps = db.choreSwapDao().getSwapsForWeek(0);
 
-        ChoreSwapEntity swap = new ChoreSwapEntity();
-        swap.weekOffset = currentWeekOffset;
-        swap.chore1Id = c1.id;
-        swap.chore2Id = c2.id;
+        for (ChoreSwapEntity swap : currentSwaps) {
+            if (swap.chore1Id == c1.id || swap.chore2Id == c1.id ||
+                swap.chore1Id == c2.id || swap.chore2Id == c2.id) {
+                db.choreSwapDao().deleteById((int) swap.id);
+            }
+        }
 
-        db.choreSwapDao().insert(swap);
+        int temp = c1.roommateId;
+        c1.roommateId = c2.roommateId;
+        c2.roommateId = temp;
 
-        Toast.makeText(this,
-                "Swapped: " + r1.name + " ↔ " + r2.name,
-                Toast.LENGTH_SHORT).show();
+        db.choreDao().update(c1);
+        db.choreDao().update(c2);
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_CHORE1_ID, c1.id);
+        resultIntent.putExtra(EXTRA_CHORE2_ID, c2.id);
+        resultIntent.putExtra(EXTRA_SWAP_NAME1, r1.name);
+        resultIntent.putExtra(EXTRA_SWAP_NAME2, r2.name);
+        setResult(RESULT_OK, resultIntent);
 
         finish();
     }

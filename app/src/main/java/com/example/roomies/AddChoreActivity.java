@@ -18,7 +18,7 @@ public class AddChoreActivity extends AppCompatActivity {
     private Spinner frequencySpinner, roommateSpinner;
     private LinearLayout daysLayout;
     private ListView choreListView;
-    private Button saveBtn, saveAddAnotherBtn, cancelBtn;
+    private Button saveBtn;
 
     private RoomiesDatabase db;
     private List<RoommateEntity> roommates = new ArrayList<>();
@@ -30,14 +30,20 @@ public class AddChoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_chore);
 
+        ImageButton closeButton = findViewById(R.id.closeButton);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();  // closes the screen
+            }
+        });
+
         inputChore = findViewById(R.id.inputChore);
         frequencySpinner = findViewById(R.id.frequencySpinner);
         roommateSpinner = findViewById(R.id.roommateSpinner);
         choreListView = findViewById(R.id.choreList);
         daysLayout = findViewById(R.id.daysLayout);
         saveBtn = findViewById(R.id.saveButton);
-        saveAddAnotherBtn = findViewById(R.id.saveAddAnotherButton);
-        cancelBtn = findViewById(R.id.cancelButton);
 
         db = RoomiesDatabase.getDatabase(this);
 
@@ -61,8 +67,6 @@ public class AddChoreActivity extends AppCompatActivity {
 
         // Button actions
         saveBtn.setOnClickListener(v -> saveChore(true));
-        saveAddAnotherBtn.setOnClickListener(v -> saveChore(false));
-        cancelBtn.setOnClickListener(v -> finish());
 
         // IME Done key triggers save & close
         inputChore.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -74,7 +78,6 @@ public class AddChoreActivity extends AppCompatActivity {
             return false;
         });
 
-        // Delete chore on long click
         choreListView.setOnItemLongClickListener((parent, view, position, id) -> {
             ChoreEntity selectedChore = chores.get(position);
             new AlertDialog.Builder(this)

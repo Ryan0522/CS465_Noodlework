@@ -18,7 +18,7 @@
             android:id="@+id/pageTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My Reminders — This Week"
+            android:text="@string/MyReminders"
             android:textSize="26sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"

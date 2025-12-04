@@ -10,15 +10,36 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:text="Add / Edit Chore"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:gravity="center"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:text="@string/AddChore"
+                android:layout_marginLeft="28sp"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@android:color/black"
+                android:contentDescription="Close" />
+        </LinearLayout>
+
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -26,7 +47,7 @@
             android:layout_marginBottom="12dp"/>
 
         <TextView
-            android:text="Chore"
+            android:text="@string/Chore"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -34,14 +55,14 @@
 
         <EditText
             android:id="@+id/inputChore"
-            android:hint="e.g. Take out trash"
+            android:hint="@string/example"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
         <TextView
-            android:text="Frequency"
+            android:text="@string/Frequency"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -54,7 +75,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Week 1 Assignment to Roommate"
+            android:text="@string/Assignment"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -67,7 +88,7 @@
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:text="Due Date(s) in a Week"
+            android:text="@string/DueDate"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -88,6 +109,7 @@
             <CheckBox android:text="Thu" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <CheckBox android:text="Fri" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <CheckBox android:text="Sat" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
 
@@ -98,31 +120,11 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/cancelButton"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="Cancel"
-                android:backgroundTint="@android:color/darker_gray"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/saveAddAnotherButton"
-                android:layout_width="0dp"
-                android:layout_weight="1.5"
-                android:layout_height="match_parent"
-                android:text="Save &amp; Add Another"
-                android:backgroundTint="@android:color/holo_blue_dark"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
                 android:id="@+id/saveButton"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="Save &amp; Close"
+                android:layout_height="wrap_content"
+                android:text="Save"
                 android:backgroundTint="@android:color/holo_green_dark"
                 android:textColor="@android:color/white"/>
 
