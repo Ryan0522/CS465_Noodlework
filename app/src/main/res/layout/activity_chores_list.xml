@@ -17,9 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Chore List"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
+            style="@style/Text.Headline"
             android:textAlignment="center"
             android:gravity="center"
             android:layout_marginBottom="12dp" />
@@ -57,9 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Week of Nov 10–16"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
+                style="@style/Text.Title"
                 android:gravity="center"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -97,9 +93,7 @@
             <TextView
                 android:id="@+id/headerRoommate"
                 android:text="Roommate"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
+                style="@style/Text.Title"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -108,9 +102,7 @@
             <TextView
                 android:id="@+id/headerChore"
                 android:text="Chore"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
+                style="@style/Text.Title"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -138,6 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Swap Chore"
+            android:textSize="18dp"
             android:backgroundTint="@android:color/holo_blue_dark"
             android:textColor="@android:color/white"
             android:layout_marginBottom="8dp" />
@@ -154,6 +147,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="+ Edit Roommates"
+                android:textSize="17dp"
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="@android:color/holo_purple"
                 android:textColor="@android:color/white" />
@@ -164,13 +158,14 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="+ Edit Chores"
+                android:textSize="17dp"
                 android:backgroundTint="@android:color/holo_green_dark"
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>
 
     <include
-        android:id="@+id/undoBarInclude"
+        android:id="@+id/undoBar"
         layout="@layout/include_undo_bar" />
 
     <include layout="@layout/bottom_nav"

@@ -16,6 +16,9 @@
             android:name=".OnboardingActivity"
             android:exported="false" />
         <activity
+            android:name=".AddRoommateActivity"
+            android:exported="false" />
+        <activity
             android:name=".ScheduleViewActivity"
             android:exported="false" />
         <activity

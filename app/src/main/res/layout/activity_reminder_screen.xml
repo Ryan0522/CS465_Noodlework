@@ -25,9 +25,7 @@
             <!-- Your existing content (unchanged), starting with the title -->
             <TextView
                 android:text="Settings"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
+                style="@style/Text.Headline"
                 android:layout_marginTop="35dp"
                 android:layout_marginBottom="24dp"
                 android:layout_gravity="center_horizontal"
@@ -57,6 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Confirm"
+                    android:textSize="15dp"
                     android:backgroundTint="@android:color/holo_green_dark"
                     android:textColor="@android:color/white"
                     android:layout_marginStart="8dp" />
@@ -65,7 +64,7 @@
             <!-- (rest of your existing content) -->
             <TextView
                 android:text="Do you need auto-generated reminders?"
-                android:textSize="16sp"
+                style="@style/Text.Title"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -79,6 +78,7 @@
                 <RadioButton
                     android:id="@+id/radioYes"
                     android:text="Yes"
+                    style="@style/Text.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true" />
@@ -86,6 +86,7 @@
                 <RadioButton
                     android:id="@+id/radioNo"
                     android:text="No"
+                    style="@style/Text.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp" />
@@ -93,31 +94,36 @@
 
             <TextView
                 android:text="Which day in a week to remind you?"
-                android:textSize="16sp"
+                style="@style/Text.Title"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <LinearLayout
-                android:id="@+id/daysLayout"
-                android:orientation="horizontal"
-                android:gravity="center"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                android:scrollbars="none">
+                <LinearLayout
+                    android:id="@+id/daysLayout"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp">
 
-                <CheckBox android:text="Sun" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Mon" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Tue" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Wed" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Thu" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Fri" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <CheckBox android:text="Sat" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
+                    <CheckBox android:text="Sun" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Mon" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Tue" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Wed" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Thu" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Fri" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <CheckBox android:text="Sat" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <TextView
                 android:text="What time in a day to remind you?"
-                android:textSize="16sp"
+                style="@style/Text.Title"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -151,6 +157,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="Cancel"
+                    android:textSize="18dp"
                     android:backgroundTint="@android:color/darker_gray"
                     android:textColor="@android:color/white"
                     android:layout_marginEnd="8dp"/>
@@ -160,6 +167,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:textSize="18dp"
                     android:text="Continue"
                     android:backgroundTint="@android:color/holo_purple"
                     android:textColor="@android:color/white"/>
@@ -170,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Household JSON link:"
-                android:textStyle="bold"
+                style="style/Text.Title"
                 android:layout_marginTop="16dp" />
 
             <TextView
@@ -186,6 +194,7 @@
                 android:id="@+id/btn_change_household"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="18dp"
                 android:text="Change household" />
 
         </LinearLayout>

@@ -37,23 +37,19 @@
     <Button
         android:id="@+id/btnCreateRoom"
         android:layout_width="match_parent"
-<<<<<<< HEAD
         android:layout_height="wrap_content"
         android:text="Create household"
+        android:backgroundTint="@android:color/holo_purple"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnJoinRoom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Join household" />
-
-=======
-        android:layout_height="67dp"
+        android:text="Join household"
         android:backgroundTint="@android:color/holo_purple"
-        android:text="@string/Start"
-        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:textSize="20sp" />
->>>>>>> main
+        android:textSize="18sp" />
 </LinearLayout>

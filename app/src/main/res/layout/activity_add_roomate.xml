@@ -24,11 +24,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Add / Edit Roommates"
-                android:textSize="24sp"
+                style="@style/Text.Headline"
                 android:textAlignment="center"
-                android:layout_marginLeft="28dp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:layout_marginLeft="28dp" />
 
             <!-- X BUTTON -->
             <ImageButton
@@ -50,7 +48,7 @@
 
         <TextView
             android:text="Roommate Name"
-            android:textSize="16sp"
+            style="@style/Text.Title"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -76,14 +74,14 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Save"
+                android:textSize="18dp"
                 android:backgroundTint="@android:color/holo_green_dark"
                 android:textColor="@android:color/white"/>
         </LinearLayout>
 
         <TextView
             android:text="Current Roommates (Hold to Delete)"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            style="@style/Text.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp" />
@@ -92,6 +90,7 @@
             android:id="@+id/roommateList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Text.Body"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp"
             android:layout_marginTop="24dp" />
@@ -99,7 +98,8 @@
     </LinearLayout>
 
     <include
-        android:id="@+id/undoBarInclude"
-        layout="@layout/include_undo_bar" />
+        android:id="@+id/undoBar"
+        layout="@layout/include_undo_bar"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -12,9 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Chores Swap"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
+        style="@style/Text.Headline"
+        android:textSize="28dp"
         android:textAlignment="center"
         android:gravity="center"
         android:layout_marginBottom="8dp" />
@@ -50,8 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Select the chore to swap:"
+        style="@style/Text.Title"
         android:textSize="18sp"
-        android:textColor="@android:color/black"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
 
@@ -68,7 +67,7 @@
         android:layout_height="wrap_content"
         android:text="Select the chore to swap with:"
         android:textSize="18sp"
-        android:textColor="@android:color/black"
+        style="@style/Text.Title"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
 
@@ -103,5 +102,9 @@
         android:backgroundTint="@android:color/darker_gray"
         android:layout_marginBottom="8dp" />
 
+    <include
+        android:id="@+id/undoBar"
+        layout="@layout/include_undo_bar"
+        android:visibility="gone" />
 
 </LinearLayout>

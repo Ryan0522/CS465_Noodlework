@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import android.annotation.SuppressLint;
 
 public class AddReminderActivity extends AppCompatActivity {
     private RoomiesDatabase db;
@@ -18,7 +17,7 @@ public class AddReminderActivity extends AppCompatActivity {
     private EditText commentInput;
     private TimePicker timePicker;
     private Button saveBtn, cancelBtn;
-    private Button todayBtn, tomorrowBtn, b8am, b3pm, b6pm, b9pm;
+    private Button todayBtn, tomorrowBtn;
     private Button btnMon, btnTue, btnWed, btnThu, btnFri, btnSat, btnSun;
 
     private int choreId;
@@ -54,15 +53,15 @@ public class AddReminderActivity extends AppCompatActivity {
         btnFri = findViewById(R.id.btnFri);
         btnSat = findViewById(R.id.btnSat);
         btnSun = findViewById(R.id.btnSun);
-        b8am = findViewById(R.id.btn8am);
-        b3pm = findViewById(R.id.btn3pm);
-        b6pm = findViewById(R.id.btn6pm);
-        b9pm = findViewById(R.id.btn9pm);
 
-        // Find chore
-        chore = db.choreDao().getAll().stream()
-                .filter(c -> c.id == choreId)
-                .findFirst().orElse(null);
+        // --- Find chore without streams ---
+        chore = null;
+        for (ChoreEntity c : db.choreDao().getAll()) {
+            if (c.id == choreId) {
+                chore = c;
+                break;
+            }
+        }
 
         if (chore == null) {
             Toast.makeText(this, "Chore not found", Toast.LENGTH_SHORT).show();
@@ -104,10 +103,12 @@ public class AddReminderActivity extends AppCompatActivity {
 
     private void setupQuickButtons() {
         todayBtn.setOnClickListener(v -> {
+            setTime(21, 0);
             selectedDay = "Today";
             updateDayButtonStates();
         });
         tomorrowBtn.setOnClickListener(v -> {
+            setTime(21, 0);
             selectedDay = "Tomorrow";
             updateDayButtonStates();
         });
@@ -140,11 +141,6 @@ public class AddReminderActivity extends AppCompatActivity {
             selectedDay = "Sun";
             updateDayButtonStates();
         });
-
-        b8am.setOnClickListener(v -> setTime(8, 0));
-        b3pm.setOnClickListener(v -> setTime(15, 0));
-        b6pm.setOnClickListener(v -> setTime(18, 0));
-        b9pm.setOnClickListener(v -> setTime(21, 0));
 
         updateDayButtonStates();
     }

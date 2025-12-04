@@ -17,9 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add / Edit Reminder"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
+            style="@style/Text.Headline"
             android:layout_marginBottom="12dp" />
 
         <View
@@ -31,7 +29,7 @@
         <!-- Info section -->
         <TextView
             android:text="Roommate:"
-            android:textStyle="bold"
+            style="@style/Text.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -39,11 +37,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Alice"
+            style="@style/Text.Body"
             android:layout_marginBottom="8dp" />
 
         <TextView
             android:text="Chore:"
-            android:textStyle="bold"
+            style="@style/Text.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -51,11 +50,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Trash"
+            style="@style/Text.Body"
             android:layout_marginBottom="8dp" />
 
         <TextView
             android:text="Due Day(s):"
-            android:textStyle="bold"
+            style="@style/Text.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -63,6 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Sat"
+            style="@style/Text.Body"
             android:layout_marginBottom="12dp" />
 
         <View
@@ -74,8 +75,7 @@
         <!-- Quick Setup -->
         <TextView
             android:text="Quick Reminder Setup"
-            android:textStyle="bold"
-            android:textSize="18sp"
+            style="@style/Text.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
@@ -89,54 +89,22 @@
 
             <Button
                 android:id="@+id/btnToday"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="45dp"
-                android:text="Today"
+                android:text="Today 9pm"
                 android:layout_marginEnd="8dp" />
             <Button
                 android:id="@+id/btnTomorrow"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"
-                android:text="Tomorrow" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
-
-            <Button
-                android:id="@+id/btn8am"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
-                android:text="8AM"
-                android:layout_marginEnd="8dp" />
-            <Button
-                android:id="@+id/btn3pm"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
-                android:text="3PM"
-                android:layout_marginEnd="8dp" />
-            <Button
-                android:id="@+id/btn6pm"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
-                android:text="6PM"
-                android:layout_marginEnd="8dp" />
-            <Button
-                android:id="@+id/btn9pm"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
-                android:text="9PM" />
+                android:text="Tomorrow 9pm" />
         </LinearLayout>
 
         <!-- Custom Time Picker -->
         <TextView
             android:text="or choose a custom time"
+            style="style/Text.Caption"
             android:textStyle="italic"
-            android:textColor="@android:color/darker_gray"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
@@ -249,6 +217,7 @@
                 android:layout_weight="1"
                 android:layout_height="50dp"
                 android:text="Cancel"
+                android:textSize="18dp"
                 android:backgroundTint="@android:color/darker_gray"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="8dp" />
@@ -259,13 +228,15 @@
                 android:layout_weight="1"
                 android:layout_height="50dp"
                 android:text="Save"
+                android:textSize="18dp"
                 android:backgroundTint="@android:color/holo_blue_dark"
                 android:textColor="@android:color/white" />
         </LinearLayout>
+
+        <include
+            android:id="@+id/undoBar"
+            layout="@layout/include_undo_bar"
+            android:visibility="gone" />
+
     </LinearLayout>
-
-    <include
-        android:id="@+id/undoBarInclude"
-        layout="@layout/include_undo_bar" />
-
 </ScrollView>
