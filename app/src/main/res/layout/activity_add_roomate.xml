@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:text="Save"
                 android:textSize="18dp"
-                android:backgroundTint="@android:color/holo_green_dark"
+                android:backgroundTint="@color/primary"
                 android:textColor="@android:color/white"/>
         </LinearLayout>
 

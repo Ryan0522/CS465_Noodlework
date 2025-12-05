@@ -1,14 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="nav_selected">#3F51B5</color>
-    <color name="nav_unselected">#DDDDDD</color>
-    <color name="user_highlight">#FF4081</color>
-    <color name="text_primary">#000000</color>
+    <!-- Clean Blue Theme - Minimal & Fresh -->
+
+    <!-- Primary: Blue Palette -->
+    <color name="primary">#5DADE2</color>
+    <color name="primary_dark">#3498DB</color>
+    <color name="primary_light">#AED6F1</color>
+
+    <!-- Secondary: Lighter Blue -->
+    <color name="secondary">#85C1E9</color>
+    <color name="secondary_dark">#5DADE2</color>
+    <color name="secondary_light">#D6EAF8</color>
+
+    <!-- Accent: Mint Green -->
+    <color name="accent">#80D8C3</color>
+
+    <!-- Button Colors with transparency -->
+    <color name="button_primary">#5DADE2</color>
+    <color name="button_primary_pressed">#D95DADE2</color>
+    <color name="button_secondary">#A085C1E9</color>
+    <color name="button_light">#40AED6F1</color>
+
+    <!-- Navigation -->
+    <color name="nav_selected">#5DADE2</color>
+    <color name="nav_unselected">#E8E8E8</color>
+
+    <!-- Text -->
+    <color name="text_primary">#34495E</color>
+    <color name="text_secondary">#7F8C8D</color>
+
+    <!-- Backgrounds -->
+    <color name="background_main">#F8F9FA</color>
+    <color name="background_card">#FFFFFF</color>
+
+    <!-- Highlights & States -->
+    <color name="user_highlight">#578FCA</color>
+    <color name="progress_normal">#5DADE2</color>
+    <color name="progress_overdue">#E74C3C</color>
+
+    <!-- Undo Bar -->
+    <color name="undo_background">#D6EAF8</color>
+    <color name="undo_text">#2874A6</color>
+
+    <!-- Basic -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="gray">#AAAAAA</color>
-    <color name="holo_blue_light">#ADD8E6</color>
-
-    <color name="progress_normal">#3F51B5</color>
-    <color name="progress_overdue">#D32F2F</color>
+    <color name="gray">#BDC3C7</color>
+    <color name="holo_blue_light">#AED6F1</color>
 </resources>

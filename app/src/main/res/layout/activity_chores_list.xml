@@ -123,7 +123,7 @@
             android:layout_height="wrap_content"
             android:text="Swap Chore"
             android:textSize="18dp"
-            android:backgroundTint="@android:color/holo_blue_dark"
+            android:backgroundTint="@color/accent"
             android:textColor="@android:color/white"
             android:layout_marginBottom="8dp" />
 
@@ -141,7 +141,7 @@
                 android:text="+ Edit Roommates"
                 android:textSize="17dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@android:color/holo_purple"
+                android:backgroundTint="@color/button_primary"
                 android:textColor="@android:color/white" />
 
             <Button
@@ -151,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:text="+ Edit Chores"
                 android:textSize="17dp"
-                android:backgroundTint="@android:color/holo_green_dark"
+                android:backgroundTint="@color/button_primary"
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>
