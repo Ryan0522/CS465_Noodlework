@@ -1,6 +1,7 @@
 package com.example.roomies;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,7 +15,14 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,24 +109,75 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        String body = (rem.timeText != null && !rem.timeText.isEmpty())
+        String baseBody = (rem.timeText != null && !rem.timeText.isEmpty())
                 ? rem.timeText
                 : "Scheduled chore";
-//
-//        // --- Compute progress & overdue ---
-//        long now = System.currentTimeMillis();
-//        List<ChoreEntity> chores = db.choreDao().getAll();
-//        long due = chores.;
+
+        // --- Compute progress & overdue ---
+        long now = System.currentTimeMillis();
+        long dueMillis = computeNextDueMillisForChore(chore);
+
+        int max = 100;
+        int progress = 0;
+        boolean overdue = false;
+        String statusSuffix = "";
+
+        if (dueMillis > 0) {
+            long dayMs = 24L * 60 * 60 * 1000;
+            // window = 7 days before due
+            long windowStart = dueMillis - 7L * dayMs;
+
+            if (now >= dueMillis) {
+                overdue = true;
+                progress = max;
+                statusSuffix = " • OVERDUE!";
+            } else if (now <= windowStart) {
+                progress = 0;
+                // not yet in the “last week” window; we can show how many days until due
+                long daysUntilDue = (dueMillis - now) / dayMs;
+                if (daysUntilDue == 0) {
+                    statusSuffix = " • Due today";
+                } else if (daysUntilDue == 1) {
+                    statusSuffix = " • Due tomorrow";
+                } else {
+                    statusSuffix = " • Due in " + daysUntilDue + " days";
+                }
+            } else {
+                // within last week before due → progress from 0..100
+                float fraction = (float)(now - windowStart) / (float)(dueMillis - windowStart);
+                progress = (int)(fraction * max);
+
+                long daysUntilDue = (dueMillis - now) / dayMs;
+                if (daysUntilDue == 0) {
+                    statusSuffix = " • Due today";
+                } else if (daysUntilDue == 1) {
+                    statusSuffix = " • Due tomorrow";
+                } else {
+                    statusSuffix = " • Due in " + daysUntilDue + " days";
+                }
+            }
+        }
+
+        String finalBody = baseBody + statusSuffix;
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_REMINDERS)
-                // FIX: use an icon that really exists in your project
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(choreName)
-                .setContentText(body)
+                .setContentText(finalBody)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(finalBody))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .addAction(0, "Snooze", snoozePi)
                 .addAction(0, "Done", donePi);
+
+        // Only set progress if we have a due time
+        if (dueMillis > 0) {
+            builder.setProgress(max, progress, false);
+        }
+
+        if (overdue) {
+            builder.setColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
+        }
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
 
@@ -128,7 +187,6 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED) {
-                // No permission -> just skip showing the notification
                 return;
             }
         }
@@ -140,6 +198,7 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
         long now = System.currentTimeMillis();
         long snoozeMillis = 5L * 60L * 60L * 1000L; // 5 hours
 
+        rem.timeText += " (Snoozed)";
         rem.triggerAtMillis = now + snoozeMillis;
         remDao.update(rem);
 
@@ -177,5 +236,110 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
             channel.setDescription("Notifications for upcoming chores.");
             nm.createNotificationChannel(channel);
         }
+    }
+
+    @SuppressLint("NewApi")
+    private static DayOfWeek mapShortDayToDow(String label) {
+        if (label == null) return null;
+        String l = label.trim().toLowerCase();
+        switch (l) {
+            case "mon": return DayOfWeek.MONDAY;
+            case "tue": return DayOfWeek.TUESDAY;
+            case "wed": return DayOfWeek.WEDNESDAY;
+            case "thu": return DayOfWeek.THURSDAY;
+            case "fri": return DayOfWeek.FRIDAY;
+            case "sat": return DayOfWeek.SATURDAY;
+            case "sun": return DayOfWeek.SUNDAY;
+            default: return null;
+        }
+    }
+    @SuppressLint("NewApi")
+    private static long computeNextDueMillisForChore(ChoreEntity chore) {
+        if (chore == null) return 0L;
+        if (chore.dueDays == null || chore.dueDays.trim().isEmpty()) return 0L;
+
+        LocalDate today = LocalDate.now();
+        LocalTime dueTime = LocalTime.of(23, 59); // 11:59pm end-of-day
+        DayOfWeek todayDow = today.getDayOfWeek();
+        int todayVal = todayDow.getValue();
+        LocalTime nowTime = LocalTime.now();
+
+        String[] parts = chore.dueDays.split(",");
+        List<DayOfWeek> dueDays = new ArrayList<>();
+
+        for (String raw : parts) {
+            String label = raw.trim();
+            if (label.isEmpty()) continue;
+            DayOfWeek target = mapShortDayToDow(label);
+            if (target != null) {
+                dueDays.add(target);
+            }
+        }
+
+        if (dueDays.isEmpty()) return 0L;
+
+        // ---------- 1) Look for the next due day later THIS week ----------
+        // Includes "today" if it's not past 23:59 yet.
+        Integer bestFutureDiff = null; // days from today, 0..6
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            int diff = targetVal - todayVal; // negative = earlier this week
+
+            boolean isFuture = false;
+
+            if (diff > 0) {
+                // Later this week
+                isFuture = true;
+            } else if (diff == 0 && nowTime.isBefore(dueTime)) {
+                // Today, and we haven't reached dueTime yet
+                diff = 0;
+                isFuture = true;
+            }
+
+            if (isFuture) {
+                if (bestFutureDiff == null || diff < bestFutureDiff) {
+                    bestFutureDiff = diff;
+                }
+            }
+        }
+
+        if (bestFutureDiff != null) {
+            // There is still a due date later this week (or later today)
+            LocalDate dueDate = today.plusDays(bestFutureDiff); // 0..6
+            ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+            return zdt.toInstant().toEpochMilli();
+        }
+
+        // ---------- 2) No more due dates later this week => chore is OVERDUE ----------
+        // We return the last due day that already passed in THIS week
+        Integer bestPastTargetVal = null; // 1..7 (DayOfWeek values)
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            boolean isPast = false;
+
+            if (targetVal < todayVal) {
+                // Earlier day in this week
+                isPast = true;
+            } else if (targetVal == todayVal && !nowTime.isBefore(dueTime)) {
+                // Today, but we're already past dueTime
+                isPast = true;
+            }
+
+            if (isPast) {
+                if (bestPastTargetVal == null || targetVal > bestPastTargetVal) {
+                    bestPastTargetVal = targetVal;
+                }
+            }
+        }
+
+        if (bestPastTargetVal == null) {
+            // This should be rare, but fallback: treat as today at dueTime.
+            bestPastTargetVal = todayVal;
+        }
+
+        int diffDays = bestPastTargetVal - todayVal; // <= 0 (same or earlier this week)
+        LocalDate dueDate = today.plusDays(diffDays);
+        ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
     }
 }

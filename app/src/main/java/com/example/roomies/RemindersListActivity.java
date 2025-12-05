@@ -2,6 +2,8 @@ package com.example.roomies;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +14,11 @@ import androidx.core.content.ContextCompat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class RemindersListActivity extends AppCompatActivity {
 
@@ -98,30 +104,118 @@ public class RemindersListActivity extends AppCompatActivity {
                 remindersContainer.addView(empty);
             } else {
                 for (ReminderEntity r : reminders) {
-                    LinearLayout row = new LinearLayout(this);
-                    row.setOrientation(LinearLayout.HORIZONTAL);
-                    row.setPadding(24, 8, 24, 8);
+                    // Card container
+                    LinearLayout card = new LinearLayout(this);
+                    card.setOrientation(LinearLayout.VERTICAL);
+                    card.setPadding(32, 24, 32, 24);
+
+                    LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    cardParams.setMargins(0, 12, 0, 12);
+                    card.setLayoutParams(cardParams);
+
+                    GradientDrawable cardBg = new GradientDrawable();
+                    cardBg.setShape(GradientDrawable.RECTANGLE);
+                    cardBg.setColor(Color.WHITE);
+                    cardBg.setCornerRadius(32);
+                    cardBg.setStroke(2, ContextCompat.getColor(this, R.color.gray));
+                    card.setBackground(cardBg);
+
+                    // Top row: reminder text + edit/delete
+                    LinearLayout topRow = new LinearLayout(this);
+                    topRow.setOrientation(LinearLayout.HORIZONTAL);
+                    topRow.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    ));
 
                     TextView timeTv = new TextView(this);
                     timeTv.setText(r.timeText + (r.isAuto ? " (Auto)" : ""));
-                    timeTv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-                    row.addView(timeTv);
+                    timeTv.setTextSize(16);
+                    timeTv.setTypeface(null, Typeface.BOLD);
+                    timeTv.setLayoutParams(new LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1
+                    ));
+                    topRow.addView(timeTv);
 
                     if (!r.isAuto) {
                         ImageButton editBtn = new ImageButton(this);
                         editBtn.setImageResource(android.R.drawable.ic_menu_edit);
-                        editBtn.setBackgroundColor(0x00000000);
+                        editBtn.setBackgroundColor(Color.TRANSPARENT);
                         editBtn.setOnClickListener(v -> editReminder(r));
-                        row.addView(editBtn);
+                        topRow.addView(editBtn);
 
                         ImageButton deleteBtn = new ImageButton(this);
                         deleteBtn.setImageResource(android.R.drawable.ic_menu_delete);
-                        deleteBtn.setBackgroundColor(0x00000000);
+                        deleteBtn.setBackgroundColor(Color.TRANSPARENT);
                         deleteBtn.setOnClickListener(v -> deleteReminder(r));
-                        row.addView(deleteBtn);
+                        topRow.addView(deleteBtn);
                     }
 
-                    remindersContainer.addView(row);
+                    card.addView(topRow);
+
+                    // Progress based on chore's due date (not reminder time)
+                    long dueMillis = computeNextDueMillisForChore(chore);
+                    long now = System.currentTimeMillis();
+                    long dayMs = 24L * 60 * 60 * 1000;
+
+                    int max = 100;
+                    int progress = 0;
+                    boolean overdue = false;
+                    String statusText = "";
+
+                    if (dueMillis > 0) {
+                        if (now >= dueMillis) {
+                            overdue = true;
+                            progress = max;
+                            statusText = "Overdue!";
+                        } else {
+                            long daysUntilDue = (dueMillis - now) / dayMs;
+                            if (daysUntilDue == 0) {
+                                statusText = "Due today";
+                            } else if (daysUntilDue == 1) {
+                                statusText = "Due tomorrow";
+                            } else {
+                                statusText = "Due in " + daysUntilDue + " days";
+                            }
+
+                            long windowStart = dueMillis - 7L * dayMs;
+                            if (now <= windowStart) {
+                                progress = 0;
+                            } else {
+                                float fraction = (float) (now - windowStart)
+                                        / (float) (dueMillis - windowStart);
+                                progress = (int) (fraction * max);
+                            }
+                        }
+                    }
+
+                    ProgressBar progressBar = new ProgressBar(this, null,
+                            android.R.attr.progressBarStyleHorizontal);
+                    progressBar.setMax(max);
+                    progressBar.setProgress(progress);
+                    LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    pbParams.setMargins(0, 16, 0, 4);
+                    progressBar.setLayoutParams(pbParams);
+                    card.addView(progressBar);
+
+                    TextView statusTv = new TextView(this);
+                    statusTv.setText(statusText);
+                    statusTv.setTextSize(12);
+                    statusTv.setTextColor(ContextCompat.getColor(
+                            this,
+                            overdue ? android.R.color.holo_red_dark : android.R.color.darker_gray
+                    ));
+                    card.addView(statusTv);
+
+                    remindersContainer.addView(card);
                 }
             }
 
@@ -139,8 +233,8 @@ public class RemindersListActivity extends AppCompatActivity {
             addBtn.setBackground(shape);
 
             LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
             );
             btnParams.setMargins(0, 12, 0, 16);
             addBtn.setLayoutParams(btnParams);
@@ -176,7 +270,8 @@ public class RemindersListActivity extends AppCompatActivity {
                     SyncUtils.pushIfRoomLinked(this);
                 })
                 .setNegativeButton("Cancel", null)
-                .show();    }
+                .show();
+    }
 
     private void editReminder(ReminderEntity r) {
         Intent i = new Intent(this, AddReminderActivity.class);
@@ -189,5 +284,119 @@ public class RemindersListActivity extends AppCompatActivity {
         Intent i = new Intent(this, AddReminderActivity.class);
         i.putExtra("choreId", choreId);
         startActivity(i);
+    }
+
+    @SuppressLint("NewApi")
+    public static DayOfWeek mapShortDayToDow(String label) {
+        if (label == null) return null;
+        String l = label.trim().toLowerCase();
+        switch (l) {
+            case "mon":
+                return DayOfWeek.MONDAY;
+            case "tue":
+                return DayOfWeek.TUESDAY;
+            case "wed":
+                return DayOfWeek.WEDNESDAY;
+            case "thu":
+                return DayOfWeek.THURSDAY;
+            case "fri":
+                return DayOfWeek.FRIDAY;
+            case "sat":
+                return DayOfWeek.SATURDAY;
+            case "sun":
+                return DayOfWeek.SUNDAY;
+            default:
+                return null;
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private static long computeNextDueMillisForChore(ChoreEntity chore) {
+        if (chore == null) return 0L;
+        if (chore.dueDays == null || chore.dueDays.trim().isEmpty()) return 0L;
+
+        LocalDate today = LocalDate.now();
+        LocalTime dueTime = LocalTime.of(23, 59); // 11:59pm end-of-day
+        DayOfWeek todayDow = today.getDayOfWeek();
+        int todayVal = todayDow.getValue();
+        LocalTime nowTime = LocalTime.now();
+
+        String[] parts = chore.dueDays.split(",");
+        List<DayOfWeek> dueDays = new ArrayList<>();
+
+        for (String raw : parts) {
+            String label = raw.trim();
+            if (label.isEmpty()) continue;
+            DayOfWeek target = mapShortDayToDow(label);
+            if (target != null) {
+                dueDays.add(target);
+            }
+        }
+
+        if (dueDays.isEmpty()) return 0L;
+
+        // ---------- 1) Look for the next due day later THIS week ----------
+        // Includes "today" if it's not past 23:59 yet.
+        Integer bestFutureDiff = null; // days from today, 0..6
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            int diff = targetVal - todayVal; // negative = earlier this week
+
+            boolean isFuture = false;
+
+            if (diff > 0) {
+                // Later this week
+                isFuture = true;
+            } else if (diff == 0 && nowTime.isBefore(dueTime)) {
+                // Today, and we haven't reached dueTime yet
+                diff = 0;
+                isFuture = true;
+            }
+
+            if (isFuture) {
+                if (bestFutureDiff == null || diff < bestFutureDiff) {
+                    bestFutureDiff = diff;
+                }
+            }
+        }
+
+        if (bestFutureDiff != null) {
+            // There is still a due date later this week (or later today)
+            LocalDate dueDate = today.plusDays(bestFutureDiff); // 0..6
+            ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+            return zdt.toInstant().toEpochMilli();
+        }
+
+        // ---------- 2) No more due dates later this week => chore is OVERDUE ----------
+        // We return the last due day that already passed in THIS week
+        Integer bestPastTargetVal = null; // 1..7 (DayOfWeek values)
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            boolean isPast = false;
+
+            if (targetVal < todayVal) {
+                // Earlier day in this week
+                isPast = true;
+            } else if (targetVal == todayVal && !nowTime.isBefore(dueTime)) {
+                // Today, but we're already past dueTime
+                isPast = true;
+            }
+
+            if (isPast) {
+                if (bestPastTargetVal == null || targetVal > bestPastTargetVal) {
+                    bestPastTargetVal = targetVal;
+                }
+            }
+        }
+
+        if (bestPastTargetVal == null) {
+            // This should be rare, but fallback: treat as today at dueTime.
+            bestPastTargetVal = todayVal;
+        }
+
+        int diffDays = bestPastTargetVal - todayVal; // <= 0 (same or earlier this week)
+        LocalDate dueDate = today.plusDays(diffDays);
+        ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
     }
 }

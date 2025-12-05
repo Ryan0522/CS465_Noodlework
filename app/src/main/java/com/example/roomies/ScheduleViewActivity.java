@@ -1,6 +1,7 @@
 package com.example.roomies;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +12,9 @@ import androidx.core.content.ContextCompat;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -26,7 +30,8 @@ public class ScheduleViewActivity extends AppCompatActivity {
     private ImageButton prevWeekBtn, nextWeekBtn;
     private TableLayout scheduleTable;
     private Spinner userSelector;
-    private TextView remindersText, weekLabel;
+    private LinearLayout remindersContainer;
+    private TextView weekLabel;
 
     private int currentWeek = 0;
     private int userId = -1;
@@ -56,7 +61,7 @@ public class ScheduleViewActivity extends AppCompatActivity {
 
         scheduleTable = findViewById(R.id.scheduleTable);
         userSelector = findViewById(R.id.userSelector);
-        remindersText = findViewById(R.id.remindersText);
+        remindersContainer = findViewById(R.id.remindersContainer);
         weekLabel = findViewById(R.id.weekLabel);
 
         scheduleTable.setStretchAllColumns(true);
@@ -260,31 +265,114 @@ public class ScheduleViewActivity extends AppCompatActivity {
     }
 
     private void showRemindersFor(String name, List<ChoreEntity> chores, List<RoommateEntity> roommates) {
-        StringBuilder sb = new StringBuilder();
+        remindersContainer.removeAllViews();
 
-        List<String> yourChores = new ArrayList<>();
+        TextView header = new TextView(this);
+        header.setText("Your Chores:");
+        header.setTextSize(18);
+        header.setTypeface(Typeface.DEFAULT_BOLD);
+        header.setPadding(16, 16, 16, 8);
+        remindersContainer.addView(header);
+
+        boolean any = false;
+        long now = System.currentTimeMillis();
+        long dayMs = 24L * 60 * 60 * 1000;
+
         for (ChoreEntity c : chores) {
             int baseIndex = findRoommateIndexById(roommates, c.roommateId);
             int assignedIndex = (baseIndex + currentWeek) % roommates.size();
 
-            if (roommates.get(assignedIndex).name.equals(name)) {
-                yourChores.add(c.name);
+            if (!roommates.get(assignedIndex).name.equals(name)) continue;
+            any = true;
+
+            long dueMillis = computeNextDueMillisForChore(c);
+
+            int max = 100;
+            int progress = 0;
+            boolean overdue = false;
+            String statusText = "";
+
+            if (dueMillis > 0) {
+                if (now >= dueMillis) {
+                    overdue = true;
+                    progress = max;
+                    statusText = "Overdue!";
+                } else {
+                    long daysUntilDue = (dueMillis - now) / dayMs;
+                    if (daysUntilDue == 0) {
+                        statusText = "Due today";
+                    } else if (daysUntilDue == 1) {
+                        statusText = "Due tomorrow";
+                    } else {
+                        statusText = "Due in " + daysUntilDue + " days";
+                    }
+
+                    long windowStart = dueMillis - 7L * dayMs;
+                    if (now <= windowStart) {
+                        progress = 0;
+                    } else {
+                        float fraction = (float) (now - windowStart)
+                                / (float) (dueMillis - windowStart);
+                        progress = (int) (fraction * max);
+                    }
+                }
             }
+
+            // Card for this chore
+            LinearLayout card = new LinearLayout(this);
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setPadding(32, 24, 32, 24);
+
+            LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            cardParams.setMargins(0, 12, 0, 12);
+            card.setLayoutParams(cardParams);
+
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(Color.WHITE);
+            bg.setCornerRadius(32);
+            bg.setStroke(2, ContextCompat.getColor(this, R.color.gray));
+            card.setBackground(bg);
+
+            TextView nameTv = new TextView(this);
+            nameTv.setText(c.name + " (" + c.dueDays + ")");
+            nameTv.setTextSize(16);
+            nameTv.setTypeface(Typeface.DEFAULT_BOLD);
+            card.addView(nameTv);
+
+            ProgressBar pb = new ProgressBar(this, null,
+                    android.R.attr.progressBarStyleHorizontal);
+            pb.setMax(max);
+            pb.setProgress(progress);
+            LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            pbParams.setMargins(0, 16, 0, 4);
+            pb.setLayoutParams(pbParams);
+            card.addView(pb);
+
+            TextView statusTv = new TextView(this);
+            statusTv.setText(statusText);
+            statusTv.setTextSize(12);
+            statusTv.setTextColor(ContextCompat.getColor(
+                    this,
+                    overdue ? android.R.color.holo_red_dark : android.R.color.darker_gray
+            ));
+            card.addView(statusTv);
+
+            remindersContainer.addView(card);
         }
 
-        if (yourChores.isEmpty()) {
-            sb.append("No chores this week 🎉");
-        } else {
-            sb.append("Your Chores:\n");
-            for (String cName : yourChores) {
-                sb.append("• ").append(cName).append("\n");
-            }
+        if (!any) {
+            TextView empty = new TextView(this);
+            empty.setText("No chores for this week.");
+            empty.setPadding(16, 8, 16, 16);
+            remindersContainer.addView(empty);
         }
-        remindersText.setText(sb.toString().trim());
-        remindersText.setTextSize(15);
-        remindersText.setTextColor(
-                ContextCompat.getColor(this, R.color.text_primary)
-        );
     }
 
     private int findRoommateIndexById(List<RoommateEntity> list, int id) {
@@ -292,5 +380,112 @@ public class ScheduleViewActivity extends AppCompatActivity {
             if (list.get(i).id == id) return i;
         }
         return 0;
+    }
+
+
+    @SuppressLint("NewApi")
+    public static DayOfWeek mapShortDayToDow(String label) {
+        if (label == null) return null;
+        String l = label.trim().toLowerCase();
+        switch (l) {
+            case "mon": return DayOfWeek.MONDAY;
+            case "tue": return DayOfWeek.TUESDAY;
+            case "wed": return DayOfWeek.WEDNESDAY;
+            case "thu": return DayOfWeek.THURSDAY;
+            case "fri": return DayOfWeek.FRIDAY;
+            case "sat": return DayOfWeek.SATURDAY;
+            case "sun": return DayOfWeek.SUNDAY;
+            default: return null;
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private static long computeNextDueMillisForChore(ChoreEntity chore) {
+        if (chore == null) return 0L;
+        if (chore.dueDays == null || chore.dueDays.trim().isEmpty()) return 0L;
+
+        LocalDate today = LocalDate.now();
+        LocalTime dueTime = LocalTime.of(23, 59); // 11:59pm end-of-day
+        DayOfWeek todayDow = today.getDayOfWeek();
+        int todayVal = todayDow.getValue();
+        LocalTime nowTime = LocalTime.now();
+
+        String[] parts = chore.dueDays.split(",");
+        List<DayOfWeek> dueDays = new ArrayList<>();
+
+        for (String raw : parts) {
+            String label = raw.trim();
+            if (label.isEmpty()) continue;
+            DayOfWeek target = mapShortDayToDow(label);
+            if (target != null) {
+                dueDays.add(target);
+            }
+        }
+
+        if (dueDays.isEmpty()) return 0L;
+
+        // ---------- 1) Look for the next due day later THIS week ----------
+        // Includes "today" if it's not past 23:59 yet.
+        Integer bestFutureDiff = null; // days from today, 0..6
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            int diff = targetVal - todayVal; // negative = earlier this week
+
+            boolean isFuture = false;
+
+            if (diff > 0) {
+                // Later this week
+                isFuture = true;
+            } else if (diff == 0 && nowTime.isBefore(dueTime)) {
+                // Today, and we haven't reached dueTime yet
+                diff = 0;
+                isFuture = true;
+            }
+
+            if (isFuture) {
+                if (bestFutureDiff == null || diff < bestFutureDiff) {
+                    bestFutureDiff = diff;
+                }
+            }
+        }
+
+        if (bestFutureDiff != null) {
+            // There is still a due date later this week (or later today)
+            LocalDate dueDate = today.plusDays(bestFutureDiff); // 0..6
+            ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+            return zdt.toInstant().toEpochMilli();
+        }
+
+        // ---------- 2) No more due dates later this week => chore is OVERDUE ----------
+        // We return the last due day that already passed in THIS week
+        Integer bestPastTargetVal = null; // 1..7 (DayOfWeek values)
+        for (DayOfWeek target : dueDays) {
+            int targetVal = target.getValue();
+            boolean isPast = false;
+
+            if (targetVal < todayVal) {
+                // Earlier day in this week
+                isPast = true;
+            } else if (targetVal == todayVal && !nowTime.isBefore(dueTime)) {
+                // Today, but we're already past dueTime
+                isPast = true;
+            }
+
+            if (isPast) {
+                if (bestPastTargetVal == null || targetVal > bestPastTargetVal) {
+                    bestPastTargetVal = targetVal;
+                }
+            }
+        }
+
+        if (bestPastTargetVal == null) {
+            // This should be rare, but fallback: treat as today at dueTime.
+            bestPastTargetVal = todayVal;
+        }
+
+        int diffDays = bestPastTargetVal - todayVal; // <= 0 (same or earlier this week)
+        LocalDate dueDate = today.plusDays(diffDays);
+        ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
     }
 }
