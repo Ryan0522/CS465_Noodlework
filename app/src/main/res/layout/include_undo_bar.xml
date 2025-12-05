@@ -4,19 +4,32 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp"
-    android:visibility="gone">
+    android:background="@color/undo_background"
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="16dp"
+    android:visibility="gone"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginTop="8dp"
+    android:elevation="4dp">
 
     <TextView
         android:id="@+id/undoMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Deleted item" />
+        android:text="Deleted item"
+        android:textColor="@color/undo_text"
+        android:textSize="14sp"
+        android:textStyle="bold" />
 
-    <Button
+    <TextView
         android:id="@+id/undoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="UNDO" />
+        android:text="UNDO (10s)"
+        android:textColor="@color/primary_dark"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true" />
 </LinearLayout>

@@ -228,7 +228,7 @@ public class RemindersListActivity extends AppCompatActivity {
 
             GradientDrawable shape = new GradientDrawable();
             shape.setShape(GradientDrawable.RECTANGLE);
-            shape.setColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark));
+            shape.setColor(ContextCompat.getColor(this, R.color.primary));
             shape.setCornerRadius(999);
             addBtn.setBackground(shape);
 
