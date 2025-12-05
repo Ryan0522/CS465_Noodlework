@@ -1,5 +1,6 @@
 package com.example.roomies;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -7,12 +8,17 @@ import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class RemindersListActivity extends AppCompatActivity {
 
     private LinearLayout remindersContainer;
     private RoomiesDatabase db;
+    private TextView weekLabel;
     private int currentUserId = -1;
 
     @Override
@@ -20,6 +26,8 @@ public class RemindersListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminders_list);
         NavBarHelper.setupBottomNav(this, "reminder");
+        weekLabel = findViewById(R.id.weekLabel);
+        updateWeekLabel();
 
         db = RoomiesDatabase.getDatabase(this);
         remindersContainer = findViewById(R.id.remindersContainer);
@@ -42,6 +50,7 @@ public class RemindersListActivity extends AppCompatActivity {
     }
 
     private void loadReminders() {
+        updateWeekLabel();
         remindersContainer.removeAllViews();
 
         RoommateEntity me = db.roommateDao().getById(currentUserId);
@@ -146,6 +155,14 @@ public class RemindersListActivity extends AppCompatActivity {
             divider.setBackgroundColor(ContextCompat.getColor(this, R.color.gray));
             remindersContainer.addView(divider);
         }
+    }
+
+    @SuppressLint("NewApi")
+    private void updateWeekLabel() {
+        LocalDate start = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate end = start.plusDays(6);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");
+        weekLabel.setText(fmt.format(start) + " - " + fmt.format(end));
     }
 
     private void deleteReminder(ReminderEntity r) {

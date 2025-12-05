@@ -14,6 +14,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import android.graphics.Typeface;
+import android.view.Gravity;
+import android.graphics.drawable.GradientDrawable;
+import android.widget.LinearLayout;
+import android.view.ViewGroup;
+import android.view.View;
+
 public class ScheduleViewActivity extends AppCompatActivity {
 
     private ImageButton prevWeekBtn, nextWeekBtn;
@@ -87,77 +94,118 @@ public class ScheduleViewActivity extends AppCompatActivity {
 
         scheduleTable.removeAllViews();
 
-        if (roommates == null || roommates.isEmpty()) {
+        if (roommates == null || roommates.isEmpty() || chores == null || chores.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setPadding(24, 24, 24, 24);
-            empty.setText("Add yourself on the Reminders screen to see assignments.");
+            empty.setText("Add roommates and chores to see the rotation.");
+            empty.setTextSize(14);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.black));
             scheduleTable.addView(empty);
 
-            setupUserDropdown(Collections.emptyList(), chores); // keep spinner empty
-            updatePrevButtonState();
+            setupUserDropdown(roommates == null ? java.util.Collections.emptyList() : roommates, chores);
             return;
         }
 
-        // Add header row: chores + roommate names
+        // ----- Header row: "Chore" + roommate names -----
         TableRow header = new TableRow(this);
-        TextView choreHeader = new TextView(this);
-        choreHeader.setText("Chore");
-        choreHeader.setPadding(16, 8, 16, 8);
-        choreHeader.setTextSize(18);
-        header.addView(choreHeader);
+        header.addView(makeHeaderCell("Chore", Gravity.START));
 
         for (RoommateEntity r : roommates) {
-            TextView nameTv = new TextView(this);
-            nameTv.setText(r.name);
-            nameTv.setPadding(16, 8, 16, 8);
-            nameTv.setTextSize(18);
-            if (r.id == userId) {
-                nameTv.setTextColor(ContextCompat.getColor(this, R.color.user_highlight));
+            boolean isYou = (r.id == userId);
+            TextView nameCell = makeHeaderCell(isYou ? r.name + " (You)" : r.name, Gravity.CENTER);
+            if (isYou) {
+                nameCell.setTextColor(ContextCompat.getColor(this, R.color.user_highlight));
             }
-            header.addView(nameTv);
+            header.addView(nameCell);
         }
+
         scheduleTable.addView(header);
 
-        // Add one row per chore
-        for (int i = 0; i < chores.size(); i++) {
-            ChoreEntity c = chores.get(i);
+// ----- One row per chore -----
+        for (ChoreEntity c : chores) {
             TableRow row = new TableRow(this);
 
-            TextView choreName = new TextView(this);
-            choreName.setText(c.name);
-            choreName.setPadding(16, 8, 16, 8);
-            choreName.setTextSize(18);
-            row.addView(choreName);
+            // Chore name, left
+            TextView choreCell = makeBodyCell(c.name, Gravity.START);
+            row.addView(choreCell);
 
-            int assignedIndex = findRoommateIndexById(roommates, c.roommateId);
+            // One dot cell per roommate
+            int baseIndex = findRoommateIndexById(roommates, c.roommateId);
+            for (int i = 0; i < roommates.size(); i++) {
+                RoommateEntity r = roommates.get(i);
+                int assignedIndex = (baseIndex + currentWeek) % roommates.size();
+                boolean isAssigned = (roommates.get(assignedIndex).id == r.id);
+                boolean isYou = (r.id == userId);
 
-            if (currentWeek > 0) {
-                assignedIndex = (assignedIndex + currentWeek) % roommates.size();
-            }
-
-            for (int j = 0; j < roommates.size(); j++) {
-                TextView cell = new TextView(this);
-                cell.setPadding(16, 8, 16, 8);
-                cell.setTextSize(18);
-                cell.setText(j == assignedIndex ? "●" : ""); // mark the assignee
-
-                // Highlight the mark if the assignee is the current user
-                if (j == assignedIndex && roommates.get(j).id == userId) {
-                    cell.setTextColor(ContextCompat.getColor(this, R.color.user_highlight));
-                    cell.setTypeface(Typeface.DEFAULT_BOLD);
-                }
-
-                row.addView(cell);
+                LinearLayout dotCell = makeDotCell(isAssigned, isYou);
+                row.addView(dotCell);
             }
 
             scheduleTable.addView(row);
         }
+
+//        setupUserDropdown(roommates, chores);
 
         updatePrevButtonState();
         setupUserDropdown(roommates, chores);
         if (userId != -1) {
             userSelector.setEnabled(false);
         }
+    }
+
+    private TextView makeHeaderCell(String text, int gravity) {
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setPadding(8, 8, 8, 8);
+        tv.setTextSize(14);
+        tv.setTypeface(Typeface.DEFAULT_BOLD);
+        tv.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        tv.setGravity(gravity);
+        return tv;
+    }
+
+    private TextView makeBodyCell(String text, int gravity) {
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setPadding(8, 12, 8, 12);
+        tv.setTextSize(15);
+        tv.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        tv.setGravity(gravity);
+        return tv;
+    }
+
+    private LinearLayout makeDotCell(boolean isAssigned, boolean isYou) {
+        LinearLayout container = new LinearLayout(this);
+        container.setGravity(Gravity.CENTER);
+        TableRow.LayoutParams params = new TableRow.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+        );
+        container.setLayoutParams(params);
+        container.setPadding(0, 8, 0, 8);
+
+        if (!isAssigned) {
+            return container; // empty cell
+        }
+
+        View dot = new View(this);
+        int size = (int) (10 * getResources().getDisplayMetrics().density);
+
+        LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(size, size);
+        dot.setLayoutParams(dotParams);
+
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.OVAL);
+        int color = ContextCompat.getColor(
+                this,
+                isYou ? R.color.user_highlight : R.color.text_primary
+        );
+        shape.setColor(color);
+        dot.setBackground(shape);
+
+        container.addView(dot);
+        return container;
     }
 
     private void setupUserDropdown(List<RoommateEntity> roommates, List<ChoreEntity> chores) {
@@ -214,16 +262,29 @@ public class ScheduleViewActivity extends AppCompatActivity {
     private void showRemindersFor(String name, List<ChoreEntity> chores, List<RoommateEntity> roommates) {
         StringBuilder sb = new StringBuilder();
 
+        List<String> yourChores = new ArrayList<>();
         for (ChoreEntity c : chores) {
             int baseIndex = findRoommateIndexById(roommates, c.roommateId);
             int assignedIndex = (baseIndex + currentWeek) % roommates.size();
 
             if (roommates.get(assignedIndex).name.equals(name)) {
-                sb.append("• ").append(c.name).append("\n");
+                yourChores.add(c.name);
             }
         }
 
-        remindersText.setText("Your Chores:\n" + sb);
+        if (yourChores.isEmpty()) {
+            sb.append("No chores this week 🎉");
+        } else {
+            sb.append("Your Chores:\n");
+            for (String cName : yourChores) {
+                sb.append("• ").append(cName).append("\n");
+            }
+        }
+        remindersText.setText(sb.toString().trim());
+        remindersText.setTextSize(15);
+        remindersText.setTextColor(
+                ContextCompat.getColor(this, R.color.text_primary)
+        );
     }
 
     private int findRoommateIndexById(List<RoommateEntity> list, int id) {

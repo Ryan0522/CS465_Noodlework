@@ -88,13 +88,33 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <TableLayout
-                android:id="@+id/scheduleTable"
+            <TextView
+                android:id="@+id/scheduleSubheader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="4dp"
+                android:text="This Week's Rotation"
+                style="@style/Text.Title"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#EEEEEE"
-                android:padding="4dp" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_schedule_card"
+                android:padding="12dp">
+
+                <TableLayout
+                    android:id="@+id/scheduleTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="0,1,2,3" />
+            </LinearLayout>
+
 
             <View
                 android:layout_width="match_parent"
@@ -103,18 +123,22 @@
                 android:layout_marginVertical="8dp" />
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_todo_card"
+                android:padding="12dp"
+                android:orientation="vertical">
 
                 <TextView
-                    android:text="My To-Do's This Week:"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@android:color/black"
+                    android:id="@+id/myTodosHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="My To-Do's This Week"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:textColor="@color/text_primary" />
 
                 <Spinner
                     android:id="@+id/userSelector"
