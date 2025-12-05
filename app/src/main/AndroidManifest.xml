@@ -39,7 +39,9 @@
         <activity
             android:name=".AddReminderActivity"
             android:exported="false" />
-        <receiver android:name=".ReminderAlarmReceiver" />
+        <receiver
+            android:name=".ReminderAlarmReceiver"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

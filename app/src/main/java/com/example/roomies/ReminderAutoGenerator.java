@@ -46,12 +46,12 @@ final class ReminderAutoGenerator {
     @SuppressLint("NewApi")
     private static LocalDate computeNextDate(String dayLabel, LocalTime time) {
         LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
         dayLabel = dayLabel.trim().toLowerCase();
 
         // Today / Tomorrow special cases
         if (dayLabel.equals("today")) {
-            // If time already passed, push to tomorrow
-            if (time.isBefore(LocalTime.now())) {
+            if (time.isBefore(nowTime)) {
                 return today.plusDays(1);
             }
             return today;
@@ -61,24 +61,39 @@ final class ReminderAutoGenerator {
             return today.plusDays(1);
         }
 
-        // Otherwise: Monday, Tuesday, etc.
-        java.time.DayOfWeek target;
-
-        try {
-            target = java.time.DayOfWeek.valueOf(dayLabel.toUpperCase());
-        } catch (Exception e) {
-            // Bad label = assume tomorrow
-            return today.plusDays(1);
+        // Handle short names first: mon, tue...
+        java.time.DayOfWeek target = mapShortDayToDow(dayLabel);
+        if (target == null) {
+            // Try full names as a fallback, e.g. "monday"
+            try {
+                target = java.time.DayOfWeek.valueOf(dayLabel.toUpperCase());
+            } catch (Exception e) {
+                // Bad label → make it tomorrow
+                return today.plusDays(1);
+            }
         }
 
         java.time.DayOfWeek todayDOW = today.getDayOfWeek();
-
         int diff = target.getValue() - todayDOW.getValue();
-        if (diff < 0 || (diff == 0 && time.isBefore(LocalTime.now()))) {
+        if (diff < 0 || (diff == 0 && time.isBefore(nowTime))) {
             diff += 7;
         }
-
         return today.plusDays(diff);
+    }
+
+    @SuppressLint("NewApi")
+    private static java.time.DayOfWeek mapShortDayToDow(String label) {
+        String l = label.trim().toLowerCase();
+        switch (l) {
+            case "mon": return java.time.DayOfWeek.MONDAY;
+            case "tue": return java.time.DayOfWeek.TUESDAY;
+            case "wed": return java.time.DayOfWeek.WEDNESDAY;
+            case "thu": return java.time.DayOfWeek.THURSDAY;
+            case "fri": return java.time.DayOfWeek.FRIDAY;
+            case "sat": return java.time.DayOfWeek.SATURDAY;
+            case "sun": return java.time.DayOfWeek.SUNDAY;
+            default: return null;
+        }
     }
 
     private static final List<String> WEEK = Arrays.asList("Mon","Tue","Wed","Thu","Fri","Sat","Sun");

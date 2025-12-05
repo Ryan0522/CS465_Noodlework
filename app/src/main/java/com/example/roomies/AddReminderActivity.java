@@ -274,19 +274,51 @@ public class AddReminderActivity extends AppCompatActivity {
 
     @SuppressLint("NewApi")
     public long computeTriggerMillisFromSelection(String dayLabel, LocalTime time) {
-        java.time.LocalDate date = java.time.LocalDate.now();
-        if ("Tomorrow".equalsIgnoreCase(dayLabel)) {
-            date = date.plusDays(1);
-        }
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalTime nowTime = java.time.LocalTime.now();
+
+        dayLabel = dayLabel.trim();
+
+        // Today / Tomorrow special cases
         if ("Today".equalsIgnoreCase(dayLabel)) {
-            if (time.isBefore(java.time.LocalTime.now())) {
-                date = date.plusDays(1);
+            if (time.isBefore(nowTime)) {
+                today = today.plusDays(1);
+            }
+        } else if ("Tomorrow".equalsIgnoreCase(dayLabel)) {
+            today = today.plusDays(1);
+        } else {
+            // Handle short weekday names: Mon, Tue, Wed, Thu, Fri, Sat, Sun
+            java.time.DayOfWeek target = mapShortDayToDow(dayLabel);
+            if (target != null) {
+                java.time.DayOfWeek todayDow = today.getDayOfWeek();
+                int diff = target.getValue() - todayDow.getValue();
+                if (diff < 0 || (diff == 0 && time.isBefore(nowTime))) {
+                    diff += 7;
+                }
+                today = today.plusDays(diff);
+            } else {
+                // Fallback: "tomorrow"
+                today = today.plusDays(1);
             }
         }
 
-        java.time.ZonedDateTime zdt = date.atTime(time)
+        java.time.ZonedDateTime zdt = today.atTime(time)
                 .atZone(java.time.ZoneId.systemDefault());
-
         return zdt.toInstant().toEpochMilli();
+    }
+
+    @SuppressLint("NewApi")
+    private java.time.DayOfWeek mapShortDayToDow(String label) {
+        String l = label.trim().toLowerCase();
+        switch (l) {
+            case "mon": return java.time.DayOfWeek.MONDAY;
+            case "tue": return java.time.DayOfWeek.TUESDAY;
+            case "wed": return java.time.DayOfWeek.WEDNESDAY;
+            case "thu": return java.time.DayOfWeek.THURSDAY;
+            case "fri": return java.time.DayOfWeek.FRIDAY;
+            case "sat": return java.time.DayOfWeek.SATURDAY;
+            case "sun": return java.time.DayOfWeek.SUNDAY;
+            default: return null;
+        }
     }
 }

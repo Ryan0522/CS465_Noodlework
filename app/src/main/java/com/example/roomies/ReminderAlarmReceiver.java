@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -135,6 +136,10 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
         rem.triggerAtMillis = now + snoozeMillis;
         remDao.update(rem);
 
+        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+        nm.cancel(rem.id);
+        Toast.makeText(context, "Reminder snoozed for 5 hours", Toast.LENGTH_SHORT).show();
+
         ReminderScheduler.scheduleReminder(context, rem);
     }
 
@@ -143,6 +148,10 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
         remDao.delete(rem);
         // Cancel any pending alarm
         ReminderScheduler.cancelReminder(context, rem.id);
+
+        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+        nm.cancel(rem.id);
+        Toast.makeText(context, "Reminder marked as done", Toast.LENGTH_SHORT).show();
     }
 
     private void createReminderChannelIfNeeded(Context context) {

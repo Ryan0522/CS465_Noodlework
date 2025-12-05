@@ -28,11 +28,21 @@ public class ReminderScheduler {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
 
-        am.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                rem.triggerAtMillis,
-                pi
-        );
+        long triggerAt = rem.triggerAtMillis;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Android 12+ → avoid exact APIs to skip the permission requirement
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            // Android 6–11 → exact + idle is fine
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            // Android 4.4–5.x → exact
+            am.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+        } else {
+            // Very old devices
+            am.set(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+        }
     }
 
     public static void cancelReminder(Context context, int reminderId) {
