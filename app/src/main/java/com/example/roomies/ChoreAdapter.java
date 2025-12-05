@@ -36,22 +36,27 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChoreItem item = chores.get(position);
-        holder.roommateText.setText(item.getRoommate());
-        holder.choreText.setText(item.getChore());
+        String name = item.getRoommate();
+        String chore = item.getChore();
+
+        holder.roommateText.setText(name);
+        holder.choreText.setText(chore);
 
         // default colors
         holder.roommateText.setTextColor(
                 ContextCompat.getColor(holder.itemView.getContext(), R.color.text_primary)
         );
+        if (holder.youBadge != null) {
+            holder.youBadge.setVisibility(View.GONE);
+        }
 
         // highlight current user row
-        if (highlightName != null && highlightName.equals(item.getRoommate())) {
+        if (highlightName != null && highlightName.equals(name)) {
             holder.roommateText.setTextColor(
                     ContextCompat.getColor(holder.itemView.getContext(), R.color.user_highlight)
             );
-            // add a dot cue before the roommate name
-            if (!holder.roommateText.getText().toString().startsWith("• ")) {
-                holder.roommateText.setText("• " + holder.roommateText.getText());
+            if (holder.youBadge != null) {
+                holder.youBadge.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -62,11 +67,12 @@ public class ChoreAdapter extends RecyclerView.Adapter<ChoreAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView roommateText, choreText;
+        TextView roommateText, choreText, youBadge;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             roommateText = itemView.findViewById(R.id.roommateText);
             choreText = itemView.findViewById(R.id.choreText);
+            youBadge = itemView.findViewById(R.id.youBadge);
         }
     }
 

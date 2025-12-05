@@ -15,6 +15,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.util.List;
+
 /**
  * Receives reminder alarms and either:
  * - Shows the notification, or
@@ -102,6 +104,11 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
         String body = (rem.timeText != null && !rem.timeText.isEmpty())
                 ? rem.timeText
                 : "Scheduled chore";
+//
+//        // --- Compute progress & overdue ---
+//        long now = System.currentTimeMillis();
+//        List<ChoreEntity> chores = db.choreDao().getAll();
+//        long due = chores.;
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_REMINDERS)
                 // FIX: use an icon that really exists in your project

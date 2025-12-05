@@ -109,7 +109,7 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:text="My To-Do's and Reminders This Week:"
+                    android:text="My To-Do's This Week:"
                     android:layout_marginTop="8dp"
                     android:textColor="@android:color/black"
                     android:textStyle="bold"

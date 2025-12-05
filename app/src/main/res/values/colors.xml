@@ -8,4 +8,7 @@
     <color name="black">#000000</color>
     <color name="gray">#AAAAAA</color>
     <color name="holo_blue_light">#ADD8E6</color>
+
+    <color name="progress_normal">#3F51B5</color>
+    <color name="progress_overdue">#D32F2F</color>
 </resources>
