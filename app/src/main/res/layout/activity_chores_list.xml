@@ -91,22 +91,14 @@
             android:layout_marginBottom="8dp">
 
             <TextView
-                android:id="@+id/headerRoommate"
-                android:text="Roommate"
-                style="@style/Text.Title"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:gravity="center" />
-
-            <TextView
                 android:id="@+id/headerChore"
-                android:text="Chore"
+                android:text="This week’s assignments"
                 style="@style/Text.Title"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="4dp" />
+
         </LinearLayout>
     </LinearLayout>
 
