@@ -2,9 +2,13 @@ package com.example.roomies;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -198,6 +202,8 @@ public class RemindersListActivity extends AppCompatActivity {
                             android.R.attr.progressBarStyleHorizontal);
                     progressBar.setMax(max);
                     progressBar.setProgress(progress);
+                    tintProgressBar(progressBar, overdue);
+
                     LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
@@ -248,6 +254,22 @@ public class RemindersListActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.MATCH_PARENT, 2));
             divider.setBackgroundColor(ContextCompat.getColor(this, R.color.gray));
             remindersContainer.addView(divider);
+        }
+    }
+
+    private void tintProgressBar(ProgressBar pb, boolean overdue) {
+        int colorRes = overdue ? R.color.progress_overdue : R.color.progress_normal;
+        int color = ContextCompat.getColor(this, colorRes);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            pb.setProgressTintList(ColorStateList.valueOf(color));
+        } else {
+            Drawable d = pb.getProgressDrawable();
+            if (d != null) {
+                d = d.mutate();
+                d.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                pb.setProgressDrawable(d);
+            }
         }
     }
 

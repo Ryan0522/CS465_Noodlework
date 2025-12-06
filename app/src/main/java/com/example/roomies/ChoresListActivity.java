@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.annotation.SuppressLint;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,9 +44,18 @@ public class ChoresListActivity extends AppCompatActivity {
     private List<RoommateEntity> roommates = new ArrayList<>();
     private List<ChoreEntity> chores = new ArrayList<>();
 
+    private int currentUserId = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        currentUserId = UserManager.getCurrentUser(this);
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Please set up your profile first.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, ReminderSetupActivity.class));
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_chores_list);
 
         recyclerView = findViewById(R.id.choresRecyclerView);

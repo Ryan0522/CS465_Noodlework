@@ -26,4 +26,8 @@ public interface ChoreDao {
 
     @Query("SELECT * FROM chores WHERE id = :id")
     List<ChoreEntity> getById(int id);
+
+    // NEW: move all chores from one roommate to another
+    @Query("UPDATE chores SET roommateId = :newRoommateId WHERE roommateId = :oldRoommateId")
+    void reassignAllFromRoommate(int oldRoommateId, int newRoommateId);
 }

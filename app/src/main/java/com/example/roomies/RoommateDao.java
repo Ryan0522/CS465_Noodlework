@@ -22,7 +22,9 @@ public interface RoommateDao {
     @Query("SELECT * FROM roommates WHERE name = :name LIMIT 1")
     RoommateEntity getRoommateByName(String name);
 
-    // --- NEW: owned/linked helpers ---
+    // New: rename a roommate
+    @Query("UPDATE roommates SET name = :newName WHERE id = :id")
+    void renameRoommate(int id, String newName);
 
     // Mark a roommate as owned (linked on at least one device)
     @Query("UPDATE roommates SET owned = 1 WHERE id = :id")

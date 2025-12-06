@@ -1,6 +1,7 @@
 package com.example.roomies;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -24,6 +25,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.widget.LinearLayout;
 import android.view.ViewGroup;
 import android.view.View;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 
 public class ScheduleViewActivity extends AppCompatActivity {
 
@@ -41,6 +46,13 @@ public class ScheduleViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userId = UserManager.getCurrentUser(this);
+        if (userId == -1) {
+            Toast.makeText(this, "Please set up your profile first.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, ReminderSetupActivity.class));
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_schedule_view);
 
         TextView header = findViewById(R.id.scheduleHeader);
@@ -290,9 +302,11 @@ public class ScheduleViewActivity extends AppCompatActivity {
             int max = 100;
             int progress = 0;
             boolean overdue = false;
-            String statusText = "";
+            String statusText;
 
-            if (dueMillis > 0) {
+            if (currentWeek > 0) {
+                statusText = "(Due later)";
+            } else if (dueMillis > 0) {
                 if (now >= dueMillis) {
                     overdue = true;
                     progress = max;
@@ -316,6 +330,8 @@ public class ScheduleViewActivity extends AppCompatActivity {
                         progress = (int) (fraction * max);
                     }
                 }
+            } else {
+                statusText = "No due date";
             }
 
             // Card for this chore
@@ -347,6 +363,8 @@ public class ScheduleViewActivity extends AppCompatActivity {
                     android.R.attr.progressBarStyleHorizontal);
             pb.setMax(max);
             pb.setProgress(progress);
+            tintProgressBar(pb, overdue);
+
             LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -487,5 +505,21 @@ public class ScheduleViewActivity extends AppCompatActivity {
         LocalDate dueDate = today.plusDays(diffDays);
         ZonedDateTime zdt = dueDate.atTime(dueTime).atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
+    }
+
+    private void tintProgressBar(ProgressBar pb, boolean overdue) {
+        int colorRes = overdue ? R.color.progress_overdue : R.color.progress_normal;
+        int color = ContextCompat.getColor(this, colorRes);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            pb.setProgressTintList(ColorStateList.valueOf(color));
+        } else {
+            Drawable d = pb.getProgressDrawable();
+            if (d != null) {
+                d = d.mutate();
+                d.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                pb.setProgressDrawable(d);
+            }
+        }
     }
 }

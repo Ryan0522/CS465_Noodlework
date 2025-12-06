@@ -15,6 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+
 public class ReminderSetupActivity extends AppCompatActivity {
 
     private static final int REQ_CHANGE_HOUSEHOLD = 2001;
@@ -85,13 +89,22 @@ public class ReminderSetupActivity extends AppCompatActivity {
         if (savedId != -1) {
             RoommateEntity me = roommateDao.getById(savedId);
             if (me != null) {
+                currentUserId = me.id;
                 inputName.setText(me.name);
                 inputName.setEnabled(false);
-                confirmNameButton.setEnabled(false);
-                confirmNameButton.setBackgroundColor(getResources().getColor(R.color.gray));
+
                 nameConfirmed = true;
                 setGroupEnabled(yesNoGroup, true);
+                updateContinueButtonState();
+
+                confirmNameButton.setText("Change name");
+                confirmNameButton.setEnabled(true);
+                confirmNameButton.setOnClickListener(v -> showChangeNameDialog());
             }
+        }
+
+        if (!nameConfirmed) {
+            confirmNameButton.setOnClickListener(v -> handleNameConfirm());
         }
 
         // --- handle name confirmation ---
@@ -190,13 +203,22 @@ public class ReminderSetupActivity extends AppCompatActivity {
             if (me == null) {
                 UserManager.setCurrentUser(this, -1);
             } else {
+                currentUserId = me.id;
                 inputName.setText(me.name);
                 inputName.setEnabled(false);
-                confirmNameButton.setEnabled(false);
-                confirmNameButton.setBackgroundColor(getResources().getColor(R.color.gray));
+
                 nameConfirmed = true;
                 setGroupEnabled(yesNoGroup, true);
+                updateContinueButtonState();
+
+                confirmNameButton.setText("Change name");
+                confirmNameButton.setEnabled(true);
+                confirmNameButton.setOnClickListener(v -> showChangeNameDialog());
             }
+        }
+
+        if (!nameConfirmed) {
+            confirmNameButton.setOnClickListener(v -> handleNameConfirm());
         }
 
         // --- Restore auto reminder setting ---
@@ -303,6 +325,131 @@ public class ReminderSetupActivity extends AppCompatActivity {
         setGroupEnabled(yesNoGroup, true);
         updateContinueButtonState();
         SyncUtils.pushIfRoomLinked(this);
+
+        confirmNameButton.setEnabled(false);
+        confirmNameButton.setText("Saved");
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            confirmNameButton.setText("Change name");
+            confirmNameButton.setEnabled(true);
+            confirmNameButton.setOnClickListener(v -> showChangeNameDialog());
+        }, 2000);
+    }
+
+    private void showChangeNameDialog() {
+        if (currentUserId == -1) {
+            Toast.makeText(this, "No current user set yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RoommateEntity current = roommateDao.getById(currentUserId);
+        if (current == null) {
+            Toast.makeText(this, "Current user not found in this household.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final EditText input = new EditText(this);
+        input.setText(current.name);
+        if (current.name != null) {
+            input.setSelection(current.name.length());
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Change name")
+                .setMessage("Enter your new name. This may affect how chores are assigned.")
+                .setView(input)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    String newName = input.getText().toString().trim();
+                    handleNameChangeConfirmed(current, newName);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void handleNameChangeConfirmed(RoommateEntity current, String newName) {
+        if (newName.isEmpty()) {
+            Toast.makeText(this, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String oldName = current.name == null ? "" : current.name.trim();
+        if (oldName.equalsIgnoreCase(newName)) {
+            Toast.makeText(this, "Name is unchanged.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RoommateEntity existing = roommateDao.getRoommateByName(newName);
+
+        if (existing == null) {
+            // --- Case (a): new name does NOT exist ---
+            roommateDao.renameRoommate(current.id, newName);
+            inputName.setText(newName);
+            Toast.makeText(this, "Name updated to " + newName, Toast.LENGTH_SHORT).show();
+            SyncUtils.pushIfRoomLinked(this);
+            return;
+        }
+
+        // If we somehow hit same id, treat as unchanged
+        if (existing.id == current.id) {
+            Toast.makeText(this, "Name is unchanged.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // --- Case (b): name already exists ---
+        if (existing.owned) {
+            // Existing user is protected
+            Toast.makeText(
+                    this,
+                    "Cannot change name to \"" + newName +
+                            "\" because that roommate is linked on a device.",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
+
+        // Merge chores & switch device to that roommate
+        new AlertDialog.Builder(this)
+                .setTitle("Merge with " + newName + "?")
+                .setMessage(
+                        "The name \"" + newName + "\" already exists.\n\n" +
+                                "If you continue:\n" +
+                                "• All your chores will be moved to that roommate.\n" +
+                                "• This device will use that roommate.\n" +
+                                "• Your old roommate entry will be removed."
+                )
+                .setPositiveButton("Merge", (dialog, which) -> {
+                    // Move chores
+                    db.choreDao().reassignAllFromRoommate(current.id, existing.id);
+
+                    // Mark target as owned / protected
+                    roommateDao.markOwned(existing.id);
+
+                    // Remove old roommate
+                    RoommateEntity toDelete = roommateDao.getById(current.id);
+                    if (toDelete != null) {
+                        roommateDao.delete(toDelete);
+                    }
+
+                    // Point this device at the merged roommate
+                    currentUserId = existing.id;
+                    UserManager.setCurrentUser(this, existing.id);
+
+                    inputName.setText(existing.name);
+                    inputName.setEnabled(false);
+                    nameConfirmed = true;
+                    setGroupEnabled(yesNoGroup, true);
+                    updateContinueButtonState();
+
+                    Toast.makeText(
+                            this,
+                            "Switched to " + existing.name + " and merged chores.",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    SyncUtils.pushIfRoomLinked(this);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void onChangeHouseholdClicked() {

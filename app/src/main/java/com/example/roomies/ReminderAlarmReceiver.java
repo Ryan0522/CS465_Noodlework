@@ -160,6 +160,9 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
 
         String finalBody = baseBody + statusSuffix;
 
+        int colorRes = overdue ? R.color.progress_overdue : R.color.progress_normal;
+        int accentColor = ContextCompat.getColor(context, colorRes);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_REMINDERS)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(choreName)
@@ -167,16 +170,13 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(finalBody))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
+                .setColor(accentColor)
                 .addAction(0, "Snooze", snoozePi)
                 .addAction(0, "Done", donePi);
 
         // Only set progress if we have a due time
         if (dueMillis > 0) {
             builder.setProgress(max, progress, false);
-        }
-
-        if (overdue) {
-            builder.setColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
         }
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
