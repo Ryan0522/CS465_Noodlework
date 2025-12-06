@@ -407,33 +407,24 @@ public class ReminderSetupActivity extends AppCompatActivity {
             return;
         }
 
-        // Merge chores & switch device to that roommate
+        // Switch this device to use the existing roommate if not protected
         new AlertDialog.Builder(this)
-                .setTitle("Merge with " + newName + "?")
+                .setTitle("Switch to " + newName + "?")
                 .setMessage(
                         "The name \"" + newName + "\" already exists.\n\n" +
                                 "If you continue:\n" +
-                                "• All your chores will be moved to that roommate.\n" +
-                                "• This device will use that roommate.\n" +
-                                "• Your old roommate entry will be removed."
+                                "• This device will start using that roommate.\n" +
+                                "• Existing chores stay where they are.\n" +
+                                "• The old roommate \"" + current.name + "\" will remain and can be deleted later."
                 )
-                .setPositiveButton("Merge", (dialog, which) -> {
-                    // Move chores
-                    db.choreDao().reassignAllFromRoommate(current.id, existing.id);
-
-                    // Mark target as owned / protected
+                .setPositiveButton("Switch", (dialog, which) -> {
                     roommateDao.markOwned(existing.id);
+                    roommateDao.clearOwned(current.id);
 
-                    // Remove old roommate
-                    RoommateEntity toDelete = roommateDao.getById(current.id);
-                    if (toDelete != null) {
-                        roommateDao.delete(toDelete);
-                    }
-
-                    // Point this device at the merged roommate
                     currentUserId = existing.id;
                     UserManager.setCurrentUser(this, existing.id);
 
+                    //Update UI
                     inputName.setText(existing.name);
                     inputName.setEnabled(false);
                     nameConfirmed = true;
@@ -442,7 +433,7 @@ public class ReminderSetupActivity extends AppCompatActivity {
 
                     Toast.makeText(
                             this,
-                            "Switched to " + existing.name + " and merged chores.",
+                            "Switched to " + existing.name + ".",
                             Toast.LENGTH_SHORT
                     ).show();
 
